@@ -1,4 +1,4 @@
-##### Instalar Linux/Ubuntu:
+##### Instalar FLEX Linux/Ubuntu:
 ```
     $ sudo apt-get update
     
