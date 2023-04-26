@@ -7,15 +7,15 @@
 
 -*[0-9][0-9]* {
         if (yytext[0] == '-') {
-            printf("\nNúmero Negativo\n\n");
+            printf("\nNumero Negativo\n\n");
         } else {
             printf("\nNumero Positivo\n\n");
         }
     }
     
-[A-Z_a-z][A-Z_a-z0-9]* {printf("\nIdentificador (Variável)\n\n");}
+[A-Z_a-z][A-Z_a-z0-9]* {printf("\nIdentificador (Variavel)\n\n");}
 
-"/*"(.)*"*/" {printf("Comentário\n");}
+"/*"(.)*"*/" {printf("\nComentario\n\n");}
 
 -*[0-9][0-9]*\.[0-9][0-9]* {
         if (yytext[0] == '-') {
@@ -25,7 +25,7 @@
         }
     }
 
-.+ {printf("Não corresponde a gramática do C-Minus\n");}
+.+ {printf("\nNao corresponde a gramatica do C-Minus\n\n");}
 
 \n { return 0; }
 
@@ -41,9 +41,9 @@ int main() {
         system("cls");
     #endif
 
-    printf("\nAnalisador Léxico 1.0 - C-Minus\n\n");
+    printf("\nAnalisador Lexico 1.0 - C-Minus\n\n");
 
-    printf("Olá, digite algo e o classificaremos em C-Minus para você.\n>> ");
+    printf("Ola, digite algo e o classificaremos em C-Minus para voce.\n>> ");
     
     yylex();
 

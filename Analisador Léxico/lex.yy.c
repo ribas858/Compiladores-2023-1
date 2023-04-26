@@ -735,7 +735,7 @@ YY_RULE_SETUP
 #line 8 "analisador_lex_Cminus_base.l"
 {
         if (yytext[0] == '-') {
-            printf("\nNúmero Negativo\n\n");
+            printf("\nNumero Negativo\n\n");
         } else {
             printf("\nNumero Positivo\n\n");
         }
@@ -744,12 +744,12 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 16 "analisador_lex_Cminus_base.l"
-{printf("\nIdentificador (Variável)\n\n");}
+{printf("\nIdentificador (Variavel)\n\n");}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 18 "analisador_lex_Cminus_base.l"
-{printf("Comentário\n");}
+{printf("\nComentario\n\n");}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
@@ -765,7 +765,7 @@ YY_RULE_SETUP
 case 5:
 YY_RULE_SETUP
 #line 28 "analisador_lex_Cminus_base.l"
-{printf("Não corresponde a gramática do C-Minus\n");}
+{printf("\nNao corresponde a gramatica do C-Minus\n\n");}
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
@@ -1796,9 +1796,9 @@ int main() {
         system("cls");
     #endif
 
-    printf("\nAnalisador Léxico 1.0 - C-Minus\n\n");
+    printf("\nAnalisador Lexico 1.0 - C-Minus\n\n");
 
-    printf("Olá, digite algo e o classificaremos em C-Minus para você.\n>> ");
+    printf("Ola, digite algo e o classificaremos em C-Minus para voce.\n>> ");
     
     yylex();
 
