@@ -3,9 +3,14 @@
 
 %}
 
+NUMERO [0-9][0-9]*
+ID [A-Z_a-z][A-Z_a-z0-9]*
+
+test "a"
+
 %%
 
--*[0-9][0-9]* {
+-?{NUMERO} {
         if (yytext[0] == '-') {
             printf("\nNumero Negativo\n\n");
         } else {
@@ -13,11 +18,11 @@
         }
     }
     
-[A-Z_a-z][A-Z_a-z0-9]* {printf("\nIdentificador (Variavel)\n\n");}
+{ID} {printf("\nIdentificador (Variavel)\n\n");}
 
-"/*"(.)*"*/" {printf("\nComentario\n\n");}
+"/*""*/" {printf("\nComentario\n\n");}
 
--*[0-9][0-9]*\.[0-9][0-9]* {
+-?{NUMERO}\.{NUMERO} {
         if (yytext[0] == '-') {
             printf("\nPonto Flutuante Negativo\n\n");
         } else {
@@ -25,9 +30,11 @@
         }
     }
 
-.+ {printf("\nNao corresponde a gramatica do C-Minus\n\n");}
+.+ {printf("\nNao corresponde a gramatica do C-Minus: %s\n\n", yytext);}
 
-\n { return 0; }
+
+\n {return 0;}
+
 
 %%
 
