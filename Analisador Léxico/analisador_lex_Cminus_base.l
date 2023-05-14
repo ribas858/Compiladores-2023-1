@@ -20,8 +20,6 @@ test "a"
     
 {ID} {printf("\nIdentificador (Variavel)\n\n");}
 
-"/*""*/" {printf("\nComentario\n\n");}
-
 -?{NUMERO}\.{NUMERO} {
         if (yytext[0] == '-') {
             printf("\nPonto Flutuante Negativo\n\n");
@@ -30,7 +28,10 @@ test "a"
         }
     }
 
-.+ {printf("\nNao corresponde a gramatica do C-Minus: %s\n\n", yytext);}
+"/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "* {printf("\nComentario\n\n");}
+
+
+.+ {printf("\nNao corresponde a gramatica do C-Minus aa: %s\n\n", yytext);}
 
 
 \n {return 0;}
