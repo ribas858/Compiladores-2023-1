@@ -6,6 +6,14 @@
 
 ```
 
+##### Instalar BISON Linux/Ubuntu:
+```
+    $ sudo apt-get update
+    
+    $ sudo apt-get install bison
+
+```
+
 ##### Executar:
 ```
     $ flex analisador_lex_Cminus_base.l
