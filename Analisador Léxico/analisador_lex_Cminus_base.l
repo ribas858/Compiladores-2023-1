@@ -3,39 +3,48 @@
 
 %}
 
-NUMERO [0-9][0-9]*
-ID [A-Z_a-z][A-Z_a-z0-9]*
+LETRA [A-Z_a-z]
+DIGITO [0-9]
 
-test "a"
+NUMERO {DIGITO}{DIGITO}*
+ID {LETRA}({LETRA}|{DIGITO})*
+
+COMENTARIO "/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "*
 
 %%
 
+\n {printf("\nFim da Analise.\n"); return 0; }
+
+else|if|int|return|void|while  {printf("\nToken Reservado: %s\n\n", yytext);}
+
+\+|-|\*|\/ {printf("\nOperador Matematico: %s\n\n", yytext);}
+\<|\<\=|\>|\>\=|\=\=|\!\= {printf("\nOperador de Comparacao: %s\n\n", yytext);}
+
+\= {printf("\nOperador de Atribuicao: %s\n\n", yytext);}
+
+;|,|\(|\)|\[|\]|\{|\}|\/\*|\*\/ {printf("\nOutros Tokens Especiais: %s\n\n", yytext);}
+
 -?{NUMERO} {
         if (yytext[0] == '-') {
-            printf("\nNumero Negativo\n\n");
+            printf("\nNumero Negativo: %s\n\n", yytext);
         } else {
-            printf("\nNumero Positivo\n\n");
+            printf("\nNumero Positivo: %s\n\n", yytext);
         }
     }
-    
-{ID} {printf("\nIdentificador (Variavel)\n\n");}
 
 -?{NUMERO}\.{NUMERO} {
         if (yytext[0] == '-') {
-            printf("\nPonto Flutuante Negativo\n\n");
+            printf("\nPonto Flutuante Negativo: %s\n\n", yytext);
         } else {
-            printf("\nPonto Flutuante Positivo\n\n");
+            printf("\nPonto Flutuante Positivo: %s\n\n", yytext);
         }
     }
+    
+{ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext);}
 
-"/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "* {printf("\nComentario\n\n");}
+{COMENTARIO} {printf("\nComentario: %s\n\n", yytext);}
 
-
-.+ {printf("\nNao corresponde a gramatica do C-Minus aa: %s\n\n", yytext);}
-
-
-\n {return 0;}
-
+.+ {printf("\nNao corresponde a gramatica do C-Minus: %s\n\n", yytext);}
 
 %%
 
@@ -49,7 +58,7 @@ int main() {
         system("cls");
     #endif
 
-    printf("\nAnalisador Lexico 1.0 - C-Minus\n\n");
+    printf("\nAnalisador Lexico 1.1 - C-Minus\n\n");
 
     printf("Ola, digite algo e o classificaremos em C-Minus para voce.\n>> ");
     
