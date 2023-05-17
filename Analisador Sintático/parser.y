@@ -12,16 +12,16 @@
 
 %token<numero> NUMERO
 
-%token<simbolos> PTV
-%token<simbolos> P1
-%token<simbolos> P2
-%token<simbolos> INT
-%token<simbolos> ID
+%token PTV
+%token P1
+%token P2
+%token INT
+%token ID
 
-%token<simbolos> OP_MAT
-%token<simbolos> OP_COMP
-%token<simbolos> ATRIB
-%token<simbolos> OUTROS
+%token OP_MAT
+%token OP_COMP
+%token ATRIB
+%token OUTROS
 
 %token PRINT
 %token IF
@@ -42,7 +42,11 @@ print: PRINT P1 expr P2
 if: IF P1 expr OP_COMP expr P2
     ;
 
-var: INT ID ATRIB expr
+var: INT ID
+    | INT atrib
+    ;
+
+atrib: ID ATRIB expr
     ;
 
 
