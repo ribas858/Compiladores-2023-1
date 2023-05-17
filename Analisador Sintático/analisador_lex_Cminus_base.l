@@ -19,24 +19,35 @@ COMENTARIO "/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "*
 
 %%
 
-else|if|int|return|void|while  {printf("\nToken Reservado: %s\n\n", yytext);}
+else|return|void|while  {printf("\nToken Reservado: %s\n\n", yytext);}
 
-\+ { printf("\nSoma: %s\n\n", yytext); return MAIS; }
+int {printf("Int: %s\n\n", yytext); return INT;}
 
-\-|\*|\/ {printf("\nOperador Matematico: %s\n\n", yytext);}
-\<|\<\=|\>|\>\=|\=\=|\!\= {printf("\nOperador de Comparacao: %s\n\n", yytext);}
+if {printf("If: %s\n\n", yytext); return IF;}
 
-\= {printf("\nOperador de Atribuicao: %s\n\n", yytext);}
+print {printf("Print: %s\n\n", yytext); return PRINT;}
+
+\+|\-|\*|\/ {printf("\nOperador Matematico: %s\n\n", yytext); return OP_MAT;}
+\<|\<\=|\>|\>\=|\=\=|\!\= {printf("\nOperador de Comparacao: %s\n\n", yytext); return OP_COMP;}
+
+\= {printf("\nOperador de Atribuicao: %s\n\n", yytext); return ATRIB;}
 
 ; {printf("Ponto e virgula: %s\n\n", yytext); return PTV;}
 
-\( {printf("Parenteses: %s\n\n", yytext); return P1;}
+\( {printf("Abre Parenteses: %s\n\n", yytext); return P1;}
+\) {printf("Fecha Parenteses: %s\n\n", yytext); return P2;}
 
-,|\)|\[|\]|\{|\}|\/\*|\*\/ {printf("\nOutros Tokens Especiais: %s\n\n", yytext);}
+\,|\[|\]|\{|\}|\/\*|\*\/ {printf("\nOutros Tokens Especiais: %s\n\n", yytext); return OUTROS; }
 
 -?{NUMERO} {
         if (yytext[0] == '-') {
             printf("\nNumero Negativo: %s\n\n", yytext);
+            char s[yyleng-1];
+            for (int i=1; i<yyleng; i++) {
+                s[i-1] = yytext[i];
+            }
+            yylval.numero = atoi(s) * (-1);
+            return NUMERO;
         } else {
             printf("\nNumero Positivo: %s\n\n", yytext);
             
@@ -47,11 +58,9 @@ else|if|int|return|void|while  {printf("\nToken Reservado: %s\n\n", yytext);}
 
 {COMENTARIO} {printf("\nComentario: %s\n\n", yytext);}
 
-{ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext);}
+{ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext); return ID;}
 
-[ \t] {}
-
-\n {return EOL;}
+[ \t\n] {}
 
 . {printf("\nNao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng);}
 

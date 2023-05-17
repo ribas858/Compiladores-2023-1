@@ -49,11 +49,18 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    EOL = 258,
-    MAIS = 259,
-    NUMERO = 260,
-    PTV = 261,
-    P1 = 262
+    NUMERO = 258,
+    PTV = 259,
+    P1 = 260,
+    P2 = 261,
+    INT = 262,
+    ID = 263,
+    OP_MAT = 264,
+    OP_COMP = 265,
+    ATRIB = 266,
+    OUTROS = 267,
+    PRINT = 268,
+    IF = 269
   };
 #endif
 
@@ -66,7 +73,7 @@ union YYSTYPE
     int numero;
     char simbolos;
 
-#line 70 "parser.tab.h"
+#line 77 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

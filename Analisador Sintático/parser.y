@@ -10,24 +10,39 @@
     char simbolos;
 }
 
-%token EOL
-%token<simbolos> MAIS
 %token<numero> NUMERO
 
 %token<simbolos> PTV
 %token<simbolos> P1
+%token<simbolos> P2
+%token<simbolos> INT
+%token<simbolos> ID
+
+%token<simbolos> OP_MAT
+%token<simbolos> OP_COMP
+%token<simbolos> ATRIB
+%token<simbolos> OUTROS
+
+%token PRINT
+%token IF
 
 
 %%
 
-stmt: | linha stmt
+linha: | print PTV | if PTV | var PTV
 
-linha: expr PTV | EOL;
+expr: expr OP_MAT NUMERO
+    | P1 NUMERO P2
+    | NUMERO
+    ;
 
-expr: 
-    NUMERO
-    | expr MAIS expr
-    | EOL
+print: PRINT P1 expr P2
+    ;
+
+if: IF P1 expr OP_COMP expr P2
+    ;
+
+var: INT ID ATRIB expr
     ;
 
 
@@ -54,5 +69,5 @@ int main(int argc, char *argv[]) {
 }
 
 void yyerror(char const* s) {
-    printf("ERRO: %s\n", s);
+    printf("\n================>>>>>>ERRO: %s\n", s);
 }
