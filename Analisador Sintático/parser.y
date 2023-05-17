@@ -7,31 +7,48 @@
 
 %union {
     int numero;
-    char op_mat;
+    char simbolos;
 }
 
 %token EOL
-%token<op_mat> MAIS
+%token<simbolos> MAIS
 %token<numero> NUMERO
-%type<numero> int_exp
+
+%token<simbolos> PTV
+%token<simbolos> P1
 
 
 %%
 
-input: | line input;
+stmt: | linha stmt
 
-line: int_exp EOL { printf("%d\n", $1); } | EOL;
+linha: expr PTV | EOL;
 
-int_exp: NUMERO { $$ = $1; } | int_exp MAIS int_exp { $$ = $1 + $3; };
+expr: 
+    NUMERO
+    | expr MAIS expr
+    | EOL
+    ;
 
 
 
 
 %%
 
+extern FILE* yyin;
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    yyin = fopen(argv[1], "r");
+
+    if (!yyin) {
+        printf("Arquivo invalido ou inexistente.\n");
+        return 1;
+    }
+
     yyparse();
+
+    fclose(yyin);
 
     return 0;
 }

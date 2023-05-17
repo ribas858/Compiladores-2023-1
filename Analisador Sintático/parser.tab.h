@@ -51,7 +51,9 @@ extern int yydebug;
   {
     EOL = 258,
     MAIS = 259,
-    NUMERO = 260
+    NUMERO = 260,
+    PTV = 261,
+    P1 = 262
   };
 #endif
 
@@ -62,9 +64,9 @@ union YYSTYPE
 #line 8 "parser.y"
 
     int numero;
-    char op_mat;
+    char simbolos;
 
-#line 68 "parser.tab.h"
+#line 70 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
