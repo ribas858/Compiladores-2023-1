@@ -21,21 +21,26 @@ COMENTARIO "/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "*
 
 else|return|void|while  {printf("\nToken Reservado: %s\n\n", yytext);}
 
-int {printf("Int: %s\n\n", yytext); return INT;}
+int {printf("Int: %s\n\n", yytext); yylval.string = strdup(yytext); return INT;}
 
-if {printf("If: %s\n\n", yytext); return IF;}
+if {printf("If: %s\n\n", yytext); yylval.string = strdup(yytext); return IF;}
 
-print {printf("Print: %s\n\n", yytext); return PRINT;}
+print {printf("Print: %s\n\n", yytext); yylval.string = strdup(yytext); return PRINT;}
 
-\+|\-|\*|\/ {printf("\nOperador Matematico: %s\n\n", yytext); return OP_MAT;}
-\<|\<\=|\>|\>\=|\=\=|\!\= {printf("\nOperador de Comparacao: %s\n\n", yytext); return OP_COMP;}
+\+ {printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MAIS; }
+\- {printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MENOS; }
+\* {printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MULT; }
+\/ {printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return DIV; }
 
-\= {printf("\nOperador de Atribuicao: %s\n\n", yytext); return ATRIB;}
 
-; {printf("Ponto e virgula: %s\n\n", yytext); return PTV;}
+\<|\<\=|\>|\>\=|\=\=|\!\= {printf("\nOperador de Comparacao: %s\n\n", yytext); yylval.string = strdup(yytext); return OP_COMP;}
 
-\( {printf("Abre Parenteses: %s\n\n", yytext); return P1;}
-\) {printf("Fecha Parenteses: %s\n\n", yytext); return P2;}
+\= {printf("\nOperador de Atribuicao: %s\n\n", yytext); yylval.caracter = yytext[0]; return ATRIB;}
+
+; {printf("Ponto e virgula: %s\n\n", yytext); yylval.caracter = yytext[0]; return PTV;}
+
+\( {printf("Abre Parenteses: %s\n\n", yytext); yylval.caracter = yytext[0]; return P1;}
+\) {printf("Fecha Parenteses: %s\n\n", yytext); yylval.caracter = yytext[0]; return P2;}
 
 \,|\[|\]|\{|\}|\/\*|\*\/ {printf("\nOutros Tokens Especiais: %s\n\n", yytext); return OUTROS; }
 
@@ -46,19 +51,19 @@ print {printf("Print: %s\n\n", yytext); return PRINT;}
             for (int i=1; i<yyleng; i++) {
                 s[i-1] = yytext[i];
             }
-            yylval.numero = atoi(s) * (-1);
+            yylval.inteiro = atoi(s) * (-1);
             return NUMERO;
         } else {
             printf("\nNumero Positivo: %s\n\n", yytext);
             
-            yylval.numero = atoi(yytext); 
+            yylval.inteiro = atoi(yytext); 
             return NUMERO;
         }
     }
 
 {COMENTARIO} {printf("\nComentario: %s\n\n", yytext);}
 
-{ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext); return ID;}
+{ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext); yylval.string = strdup(yytext); return ID;}
 
 [ \t\n] {}
 

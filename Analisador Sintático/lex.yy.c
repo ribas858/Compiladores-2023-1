@@ -354,8 +354,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 17
-#define YY_END_OF_BUFFER 18
+#define YY_NUM_RULES 20
+#define YY_END_OF_BUFFER 21
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -365,12 +365,12 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[57] =
     {   0,
-        0,    0,   18,   16,   15,   15,   16,    9,   10,    5,
-        5,   11,    5,    5,   12,    8,    6,    7,    6,   14,
-       14,   14,   14,   14,   14,   14,    6,   11,   12,   11,
-       12,   14,   14,    3,   14,   14,   14,   14,   14,    0,
-        0,   14,    2,   14,   14,   14,   14,   13,    1,   14,
-       14,   14,   13,    4,   14,    0
+        0,    0,   21,   19,   18,   18,   19,   12,   13,    7,
+        5,   14,    6,    8,   15,   11,    9,   10,    9,   17,
+       17,   17,   17,   17,   17,   17,    9,   14,   15,   14,
+       15,   17,   17,    3,   17,   17,   17,   17,   17,    0,
+        0,   17,    2,   17,   17,   17,   17,   16,    1,   17,
+       17,   17,   16,    4,   17,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -772,56 +772,71 @@ YY_RULE_SETUP
 case 2:
 YY_RULE_SETUP
 #line 24 "analisador_lex_Cminus_base.l"
-{printf("Int: %s\n\n", yytext); return INT;}
+{printf("Int: %s\n\n", yytext); yylval.string = strdup(yytext); return INT;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 26 "analisador_lex_Cminus_base.l"
-{printf("If: %s\n\n", yytext); return IF;}
+{printf("If: %s\n\n", yytext); yylval.string = strdup(yytext); return IF;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 28 "analisador_lex_Cminus_base.l"
-{printf("Print: %s\n\n", yytext); return PRINT;}
+{printf("Print: %s\n\n", yytext); yylval.string = strdup(yytext); return PRINT;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 30 "analisador_lex_Cminus_base.l"
-{printf("\nOperador Matematico: %s\n\n", yytext); return OP_MAT;}
+{printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MAIS; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 31 "analisador_lex_Cminus_base.l"
-{printf("\nOperador de Comparacao: %s\n\n", yytext); return OP_COMP;}
+{printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MENOS; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 33 "analisador_lex_Cminus_base.l"
-{printf("\nOperador de Atribuicao: %s\n\n", yytext); return ATRIB;}
+#line 32 "analisador_lex_Cminus_base.l"
+{printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return MULT; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 35 "analisador_lex_Cminus_base.l"
-{printf("Ponto e virgula: %s\n\n", yytext); return PTV;}
+#line 33 "analisador_lex_Cminus_base.l"
+{printf("\nOperador Matematico: %s\n\n", yytext); yylval.caracter = yytext[0]; return DIV; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 37 "analisador_lex_Cminus_base.l"
-{printf("Abre Parenteses: %s\n\n", yytext); return P1;}
+#line 36 "analisador_lex_Cminus_base.l"
+{printf("\nOperador de Comparacao: %s\n\n", yytext); yylval.string = strdup(yytext); return OP_COMP;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 38 "analisador_lex_Cminus_base.l"
-{printf("Fecha Parenteses: %s\n\n", yytext); return P2;}
+{printf("\nOperador de Atribuicao: %s\n\n", yytext); yylval.caracter = yytext[0]; return ATRIB;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 40 "analisador_lex_Cminus_base.l"
-{printf("\nOutros Tokens Especiais: %s\n\n", yytext); return OUTROS; }
+{printf("Ponto e virgula: %s\n\n", yytext); yylval.caracter = yytext[0]; return PTV;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 42 "analisador_lex_Cminus_base.l"
+{printf("Abre Parenteses: %s\n\n", yytext); yylval.caracter = yytext[0]; return P1;}
+	YY_BREAK
+case 13:
+YY_RULE_SETUP
+#line 43 "analisador_lex_Cminus_base.l"
+{printf("Fecha Parenteses: %s\n\n", yytext); yylval.caracter = yytext[0]; return P2;}
+	YY_BREAK
+case 14:
+YY_RULE_SETUP
+#line 45 "analisador_lex_Cminus_base.l"
+{printf("\nOutros Tokens Especiais: %s\n\n", yytext); return OUTROS; }
+	YY_BREAK
+case 15:
+YY_RULE_SETUP
+#line 47 "analisador_lex_Cminus_base.l"
 {
         if (yytext[0] == '-') {
             printf("\nNumero Negativo: %s\n\n", yytext);
@@ -829,43 +844,43 @@ YY_RULE_SETUP
             for (int i=1; i<yyleng; i++) {
                 s[i-1] = yytext[i];
             }
-            yylval.numero = atoi(s) * (-1);
+            yylval.inteiro = atoi(s) * (-1);
             return NUMERO;
         } else {
             printf("\nNumero Positivo: %s\n\n", yytext);
             
-            yylval.numero = atoi(yytext); 
+            yylval.inteiro = atoi(yytext); 
             return NUMERO;
         }
     }
 	YY_BREAK
-case 13:
-YY_RULE_SETUP
-#line 59 "analisador_lex_Cminus_base.l"
-{printf("\nComentario: %s\n\n", yytext);}
-	YY_BREAK
-case 14:
-YY_RULE_SETUP
-#line 61 "analisador_lex_Cminus_base.l"
-{printf("\nIdentificador (Variavel): %s\n\n", yytext); return ID;}
-	YY_BREAK
-case 15:
-/* rule 15 can match eol */
-YY_RULE_SETUP
-#line 63 "analisador_lex_Cminus_base.l"
-{}
-	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 65 "analisador_lex_Cminus_base.l"
-{printf("\nNao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng);}
+#line 64 "analisador_lex_Cminus_base.l"
+{printf("\nComentario: %s\n\n", yytext);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 67 "analisador_lex_Cminus_base.l"
+#line 66 "analisador_lex_Cminus_base.l"
+{printf("\nIdentificador (Variavel): %s\n\n", yytext); yylval.string = strdup(yytext); return ID;}
+	YY_BREAK
+case 18:
+/* rule 18 can match eol */
+YY_RULE_SETUP
+#line 68 "analisador_lex_Cminus_base.l"
+{}
+	YY_BREAK
+case 19:
+YY_RULE_SETUP
+#line 70 "analisador_lex_Cminus_base.l"
+{printf("\nNao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng);}
+	YY_BREAK
+case 20:
+YY_RULE_SETUP
+#line 72 "analisador_lex_Cminus_base.l"
 ECHO;
 	YY_BREAK
-#line 869 "lex.yy.c"
+#line 884 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1870,5 +1885,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 67 "analisador_lex_Cminus_base.l"
+#line 72 "analisador_lex_Cminus_base.l"
 
