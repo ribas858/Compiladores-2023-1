@@ -61,7 +61,7 @@
 %token PRINT
 %token IF
 
-%start linha
+%start programa
 
 %token<inteiro> NUMERO
 %type<inteiro> expr
@@ -71,15 +71,27 @@
 
 %%
 
-linha:  instr PTV
-    |   linha instr PTV
-    |   instr PTV BARRAN            { linha_count++; }
-    |   linha instr PTV BARRAN      { linha_count++; }
-    |   BARRAN                      { linha_count++; }
+programa:
+    |   programa linha
     ;
 
+linha:  instr PTV BARRAN
+    |   instr BARRAN PTV
+    |   instr PTV instr PTV
+    |   instr PTV instr BARRAN PTV
+    |   BARRAN
+    ;
+    
+
+/* linha:  instr PTV
+    |   linha instr PTV
+    |   instr PTV BARRAN            { printf("Aqui 1\n"); linha_count++; }
+    |   linha instr PTV BARRAN      { printf("Aqui 2\n"); linha_count++; }
+    |   linha BARRAN                      { printf("Aqui 3\n"); linha_count++; }
+    ; */
+
 instr:
-    |   print
+       print
     |   if
     |   var
     ;
@@ -103,7 +115,7 @@ print:  PRINT P1 expr P2
 if: IF P1 expr OP_COMP expr P2
     ;
 
-var:    INT ID      {printf("id: %s\n", $2);    
+var:    INT ID      {                           // printf("id: %s\n", $2);    
                                                 // tabela_simbolos = malloc(sizeof(tbs));
                                                 // if(tabela_simbolos) {
                                                 //     printf("SUCESSO\n");

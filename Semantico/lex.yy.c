@@ -869,7 +869,7 @@ case 18:
 YY_RULE_SETUP
 #line 68 "analisador_lex_Cminus_base.l"
 {
-    if(yytext[0] == '\n') {
+    if( yytext[0] == '\n' ) {
         yylval.caracter = yytext[0];
         return BARRAN;
     }

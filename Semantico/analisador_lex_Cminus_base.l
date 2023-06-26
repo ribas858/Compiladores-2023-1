@@ -66,7 +66,7 @@ print {printf("Print: %s\n\n", yytext); yylval.string = strdup(yytext); return P
 {ID} {printf("\nIdentificador (Variavel): %s\n\n", yytext); yylval.string = strdup(yytext); return ID;}
 
 [ \t\n] {
-    if(yytext[0] == '\n') {
+    if( yytext[0] == '\n' ) {
         yylval.caracter = yytext[0];
         return BARRAN;
     }
