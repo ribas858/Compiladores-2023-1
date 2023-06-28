@@ -12,7 +12,7 @@
     } tbs;
 
     typedef struct generico {
-        void *ponteiro;
+        void *dado;
         char *tipo;
     } generico;
 
@@ -77,7 +77,6 @@
 %token<caracter> PAR1
 %token<caracter> PAR2
 %token<caracter> VG
-%token<caracter> BARRAN
 
 
 // Outros
@@ -94,8 +93,7 @@
 %%
 
 programa: 
-    | programa instr
-    
+    |   programa instr
     ;
 
 instr:  var PTV
@@ -103,6 +101,7 @@ instr:  var PTV
     |   if
     |   while
     |   func
+    |   RETURN valores PTV
     ;
 
 if:     IF P1 compara P2 CHV1 programa CHV2
@@ -115,14 +114,16 @@ while:
 
 func:   VOID ID P1 parametros P2 CHV1 programa CHV2
     |   INT ID P1 parametros P2 CHV1 programa CHV2
+    ;
 
 
 parametros:
         valores VG parametros
     |   valores
+    ;
 
 compara:
-    valores operadores valores
+        valores operadores valores
     ;
 
 valores:
@@ -166,20 +167,27 @@ var:    INT ID      {                           // printf("id: %s\n", $2);
                                                 // int a = 2;
                                                 //insere_simbolo(&tabela_simbolos, $2, NULL, $1);
                                                 }
+                                    
+    |   INT ID PAR1 NUMERO PAR2     {           printf("Caso vetor\n") ;
+                                                generico expr; expr.dado = &$4; expr.tipo = "int";
+                                                generico tipo_declarado; tipo_declarado.dado = $1; tipo_declarado.tipo = "string";
+                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo_declarado);
+                                                }
 
-    |   INT ID ATRIB expr   {                   generico expr; expr.ponteiro = &$4; expr.tipo = "int";
-                                                generico tipo; tipo.ponteiro = $1; tipo.tipo = "string";
+    |   INT ID ATRIB expr   {                   generico expr; expr.dado = &$4; expr.tipo = "int";
+                                                generico tipo_declarado; tipo_declarado.dado = $1; tipo_declarado.tipo = "string";
                                                 printf("Generico\n");
-                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo);
+                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo_declarado);
                                                 //printList(tabela_simbolos);
                                                 }
                             
 
     |   ID ATRIB expr       {                   //printf("Chamou atrib\n");
-                                                generico expr; expr.ponteiro = &$3; expr.tipo = "int";
+                                                generico expr; expr.dado = &$3; expr.tipo = "int";
                                                 insere_simbolo(&tabela_simbolos, $1, &expr, NULL);
                                                 //printList(tabela_simbolos);
                                                 }
+
                                         
     |   ID                  {                   //printf("So ID: %s\n", $1);
                                                 insere_simbolo(&tabela_simbolos, $1, NULL, NULL);
@@ -209,9 +217,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void yyerror(char const* s) {
-    printf("\n================>>>>>>ERRO: %s\n", s);
-}
+
 
 void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico *tipo) {
 
@@ -223,7 +229,7 @@ void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico
                 if(!tipo && valor) {
                     
                     if(strcmp(valor->tipo, aux->tipo)  == 0) {
-                        aux->valor = *(int *) valor->ponteiro;
+                        aux->valor = *(int *) valor->dado;
                         return;
                     }
                 }
@@ -255,10 +261,10 @@ void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico
         //printf("Passou maloc 1\n");
 
         if(valor) {
-            novoSimbolo->valor = *(int *) valor->ponteiro;
+            novoSimbolo->valor = *(int *) valor->dado;
         }
         //printf("Passou maloc 2\n");
-        novoSimbolo->tipo = (char *) tipo->ponteiro;
+        novoSimbolo->tipo = (char *) tipo->dado;
         
         
         novoSimbolo->prox = NULL;
@@ -335,4 +341,52 @@ void print_erros(char *simbolo, int erro) {
         cor_terminal(2, 1);
         printf("não declarada!!\n\n"); cor_terminal(2, 0);
     }
+}
+
+void yyerror(char const* s) {
+    int j = 0;
+    char aux[strlen(s)];
+    printf("\n");
+    for (int i=0; i<strlen(s); i++) {
+        if (s[i] != ' ') {
+            aux[j] = s[i];
+            j++;
+        } else {
+            if (strcmp(aux, "syntax") == 0) {
+                aux[j] = ' ';
+                j++;
+                
+                //cor_terminal(6, 1); printf("%s\n", aux); cor_terminal(6, 0);
+            } else {
+                
+                if(aux[j] != ',' && strlen(aux) == 14) {
+                    aux[j] = '\0';
+                }
+                
+                if (strcmp(aux, "syntax error,") == 0 || strcmp(aux, "syntax error,V") == 0) {
+                    cor_terminal(6, 1);
+                    printf("\n(linha:%d) : ", linha_count+1 ); cor_terminal(2, 0);
+                    cor_terminal(1, 1); negrito(1); printf("Erro de Sintatico :: "); negrito(0); cor_terminal(1, 0);
+                }
+                else if (strcmp(aux, "unexpected") == 0) {
+                    cor_terminal(2, 1); printf("Token inesperado: "); cor_terminal(2, 0);
+                }
+                else if (strcmp(aux, "expecting") == 0) {
+                    cor_terminal(2, 1); printf(" :: Era esperado: "); cor_terminal(2, 0);
+                }
+                else if (strcmp(aux, "or") == 0) {
+                    cor_terminal(2, 1); printf(", ou "); cor_terminal(2, 0);
+                } else {
+                    if(aux[j-1] == ',') {
+                        aux[j-1] = '\0';
+                    }
+                    cor_terminal(4, 1); negrito(1); printf("%s", aux); cor_terminal(2, 0); negrito(0);
+                }    
+                memset(aux, 0, sizeof(aux));
+                j = 0;
+            }   
+        }
+    }
+    cor_terminal(4, 1); negrito(1); printf("%s\n", aux); cor_terminal(2, 0); negrito(0);
+    printf("\n");
 }

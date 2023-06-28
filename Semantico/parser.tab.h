@@ -75,9 +75,8 @@ extern int yydebug;
     PAR1 = 281,
     PAR2 = 282,
     VG = 283,
-    BARRAN = 284,
-    NUMERO = 285,
-    ID = 286
+    NUMERO = 284,
+    ID = 285
   };
 #endif
 
@@ -92,7 +91,7 @@ union YYSTYPE
     char caracter;
     void *generico;
 
-#line 96 "parser.tab.h"
+#line 95 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
