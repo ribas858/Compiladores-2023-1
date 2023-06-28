@@ -49,22 +49,35 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    PTV = 258,
-    P1 = 259,
-    P2 = 260,
-    INT = 261,
-    ID = 262,
-    MAIS = 263,
-    MENOS = 264,
-    MULT = 265,
-    DIV = 266,
-    BARRAN = 267,
-    OP_COMP = 268,
-    ATRIB = 269,
-    OUTROS = 270,
-    PRINT = 271,
-    IF = 272,
-    NUMERO = 273
+    INT = 258,
+    VOID = 259,
+    IF = 260,
+    ELSE = 261,
+    WHILE = 262,
+    PRINT = 263,
+    RETURN = 264,
+    MAIS = 265,
+    MENOS = 266,
+    MULT = 267,
+    DIV = 268,
+    MENOR = 269,
+    MAIOR = 270,
+    MENOR_IGUAL = 271,
+    MAIOR_IGUAL = 272,
+    IGUAL = 273,
+    DIF = 274,
+    ATRIB = 275,
+    PTV = 276,
+    P1 = 277,
+    P2 = 278,
+    CHV1 = 279,
+    CHV2 = 280,
+    PAR1 = 281,
+    PAR2 = 282,
+    VG = 283,
+    BARRAN = 284,
+    NUMERO = 285,
+    ID = 286
   };
 #endif
 
@@ -72,13 +85,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 35 "parser.y"
+#line 37 "parser.y"
 
     int inteiro;
     char *string;
     char caracter;
 
-#line 82 "parser.tab.h"
+#line 95 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

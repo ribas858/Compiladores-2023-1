@@ -28,9 +28,11 @@
 
     size_t tamanho_int = sizeof(int);
     size_t tamanho_char = sizeof(char);
-    int linha_count = 0;
+    extern int linha_count;
 
 %}
+
+%define parse.error verbose
 
 %union {
     int inteiro;
@@ -38,63 +40,85 @@
     char caracter;
 }
 
-%token<caracter> PTV
-%token<caracter> P1
-%token<caracter> P2
+// Tipos
 %token<string> INT
+%token<string> VOID
 
-%token<string> ID
+// Comandos
+%token IF
+%token ELSE
+%token WHILE
+%token PRINT
+%token RETURN
 
+
+// Operadores
 %token<caracter> MAIS
 %token<caracter> MENOS
 %token<caracter> MULT
 %token<caracter> DIV
+%token<caracter> MENOR
+%token<caracter> MAIOR
+%token<caracter> MENOR_IGUAL
+%token<caracter> MAIOR_IGUAL
+%token<caracter> IGUAL
+%token<caracter> DIF
+%token<caracter> ATRIB
 
+
+// Delimitadores
+%token<caracter> PTV
+%token<caracter> P1
+%token<caracter> P2
+%token<caracter> CHV1
+%token<caracter> CHV2
+%token<caracter> PAR1
+%token<caracter> PAR2
+%token<caracter> VG
 %token<caracter> BARRAN
 
 
-%token<string> OP_COMP
-%token<caracter> ATRIB
-
-%token OUTROS
-
-%token PRINT
-%token IF
-
-%start programa
-
+// Outros
 %token<inteiro> NUMERO
+%token<string>  ID
+
+// Tipos para regras
 %type<inteiro> expr
 %type<inteiro> expr_interna
 
-
+%start programa
 
 %%
 
-programa:
-    |   programa linha
-    ;
-
-linha:  instr PTV BARRAN
-    |   instr BARRAN PTV
-    |   instr PTV instr PTV
-    |   instr PTV instr BARRAN PTV
-    |   BARRAN
-    ;
+programa: 
+    | programa instr
     
-
-/* linha:  instr PTV
-    |   linha instr PTV
-    |   instr PTV BARRAN            { printf("Aqui 1\n"); linha_count++; }
-    |   linha instr PTV BARRAN      { printf("Aqui 2\n"); linha_count++; }
-    |   linha BARRAN                      { printf("Aqui 3\n"); linha_count++; }
-    ; */
-
-instr:
-       print
-    |   if
-    |   var
     ;
+
+instr:  var PTV
+    |   print
+    |   if
+    ;
+
+if:     IF P1 valores operadores valores P2 CHV1 programa CHV2
+    |   if ELSE CHV1 programa CHV2
+    ;
+
+valores:
+        expr
+    |   ID
+    ;
+
+operadores:
+        MAIOR
+    |   MENOR
+    |   MAIOR_IGUAL
+    |   MENOR_IGUAL
+    |   IGUAL
+    |   DIF
+    ;
+
+
 
 expr:   expr MENOS expr_interna { $$ = $1 - $3;  printf("menos: %d - %d\n", $1, $3); }
     |   expr MAIS expr_interna { $$ = $1 + $3;  printf("mais: %d + %d\n", $1, $3); }
@@ -108,12 +132,15 @@ expr_interna:
     |   P1 expr P2 { $$ = $2; }
     ;
 
+/* func:   INT ID P1 P2 CHV1 CHV2
+    ; */
 
 print:  PRINT P1 expr P2
     ;
 
-if: IF P1 expr OP_COMP expr P2
-    ;
+
+
+    
 
 var:    INT ID      {                           // printf("id: %s\n", $2);    
                                                 // tabela_simbolos = malloc(sizeof(tbs));
@@ -127,14 +154,13 @@ var:    INT ID      {                           // printf("id: %s\n", $2);
                                                 // int a = 2;
                                                 insere_simbolo(&tabela_simbolos, $2, NULL, $1);
                                                 }
-    |   INT atrib   { } 
-    |   atrib       { }
-    ;
 
-atrib:  ID ATRIB expr {                         //printf("%s == %d\n", $1, $3); 
-                                                //printf("tab valor antes: %d\n", tabela_simbolos->valor);
+    |   INT ID ATRIB expr   {                   insere_simbolo(&tabela_simbolos, $2, &$4, $1);    
+
+                                                }
+
+    |   ID ATRIB expr       {                   //printf("Chamou atrib\n");
                                                 insere_simbolo(&tabela_simbolos, $1, &$3, NULL);
-                                                //printf("tab valor dps: %d\n\n", tabela_simbolos->valor);
                                                 //printList(tabela_simbolos);
                                                 }
     ;

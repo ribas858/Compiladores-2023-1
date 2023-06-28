@@ -1,8 +1,10 @@
-int var1
-;int a = 1;
-int b;int c; int line; int line;int line;int line
-;int a;
 
+int comp = 2;
 
+if ( comp==2 ) {	a = 1;a = 3;VAR = 1;VAR2 = 3;}
 
-int vari;
+if (comp == 3) {
+	int b = 1;
+} else {
+	int b = 2;
+}
