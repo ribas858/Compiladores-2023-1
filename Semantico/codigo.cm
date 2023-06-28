@@ -1,10 +1,9 @@
+int var = 1;
 
-int comp = 2;
 
-if ( comp==2 ) {	a = 1;a = 3;VAR = 1;VAR2 = 3;}
-
-if (comp == 3) {
-	int b = 1;
-} else {
-	int b = 2;
+int main(var, var1, var2, var3) {
+	int b = 0;
+	if (b == 0) {
+		b = 1;
+	}
 }

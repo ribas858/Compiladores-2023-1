@@ -85,13 +85,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 37 "parser.y"
+#line 38 "parser.y"
 
     int inteiro;
     char *string;
     char caracter;
+    void *generico;
 
-#line 95 "parser.tab.h"
+#line 96 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

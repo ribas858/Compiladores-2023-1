@@ -11,20 +11,21 @@
         struct tbs *prox;
     } tbs;
 
+    typedef struct generico {
+        void *ponteiro;
+        char *tipo;
+    } generico;
+
     int yylex(void);
     void yyerror(char const* s);
-    void insere_simbolo(struct tbs **lista, char *simbolo, void* valor, void *tipo);
+    void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico *tipo);
     void printList(struct tbs *lista);
     void negrito(int status);
     void italico(int status);
     void cor_terminal(int colorCode, int status);
     void print_erros(char *simbolo, int erro);
 
-    
-
-    struct tbs *tabela_simbolos = NULL;
-    
-    
+    struct tbs *tabela_simbolos = NULL;    
 
     size_t tamanho_int = sizeof(int);
     size_t tamanho_char = sizeof(char);
@@ -38,6 +39,7 @@
     int inteiro;
     char *string;
     char caracter;
+    void *generico;
 }
 
 // Tipos
@@ -86,6 +88,7 @@
 %type<inteiro> expr
 %type<inteiro> expr_interna
 
+
 %start programa
 
 %%
@@ -96,17 +99,35 @@ programa:
     ;
 
 instr:  var PTV
-    |   print
+    |   print PTV
     |   if
+    |   while
+    |   func
     ;
 
-if:     IF P1 valores operadores valores P2 CHV1 programa CHV2
+if:     IF P1 compara P2 CHV1 programa CHV2
     |   if ELSE CHV1 programa CHV2
     ;
 
+while:
+        WHILE P1 compara P2 CHV1 programa CHV2
+    ;
+
+func:   VOID ID P1 parametros P2 CHV1 programa CHV2
+    |   INT ID P1 parametros P2 CHV1 programa CHV2
+
+
+parametros:
+        valores VG parametros
+    |   valores
+
+compara:
+    valores operadores valores
+    ;
+
 valores:
-        expr
-    |   ID
+    |   expr
+    |   var
     ;
 
 operadores:
@@ -120,27 +141,18 @@ operadores:
 
 
 
-expr:   expr MENOS expr_interna { $$ = $1 - $3;  printf("menos: %d - %d\n", $1, $3); }
-    |   expr MAIS expr_interna { $$ = $1 + $3;  printf("mais: %d + %d\n", $1, $3); }
-    |   expr_interna { $$ = $1; }
+expr:   expr MENOS expr_interna     { $$ = $1 - $3;  printf("menos: %d - %d\n", $1, $3); }
+    |   expr MAIS expr_interna      { $$ = $1 + $3;  printf("mais: %d + %d\n", $1, $3); }
+    |   expr_interna                { $$ = $1; }
     ;
 
 expr_interna:
-        expr_interna MULT NUMERO  { $$ = $1 * $3;  printf("mult: %d * %d\n", $1, $3); }
-    |   expr_interna DIV NUMERO  { $$ = $1 / $3;  printf("div: %d / %d\n", $1, $3); }
-    |   NUMERO { $$ = $1; }
-    |   P1 expr P2 { $$ = $2; }
+        expr_interna MULT NUMERO    { $$ = $1 * $3;  printf("mult: %d * %d\n", $1, $3); }
+    |   expr_interna DIV NUMERO     { $$ = $1 / $3;  printf("div: %d / %d\n", $1, $3); }
+    |   NUMERO                      { $$ = $1; }
+    |   P1 expr P2                  { $$ = $2; }
     ;
 
-/* func:   INT ID P1 P2 CHV1 CHV2
-    ; */
-
-print:  PRINT P1 expr P2
-    ;
-
-
-
-    
 
 var:    INT ID      {                           // printf("id: %s\n", $2);    
                                                 // tabela_simbolos = malloc(sizeof(tbs));
@@ -152,17 +164,29 @@ var:    INT ID      {                           // printf("id: %s\n", $2);
                                                 // tabela_simbolos->tipo = "int";
                                                 // tabela_simbolos->prox = NULL;
                                                 // int a = 2;
-                                                insere_simbolo(&tabela_simbolos, $2, NULL, $1);
+                                                //insere_simbolo(&tabela_simbolos, $2, NULL, $1);
                                                 }
 
-    |   INT ID ATRIB expr   {                   insere_simbolo(&tabela_simbolos, $2, &$4, $1);    
-
-                                                }
-
-    |   ID ATRIB expr       {                   //printf("Chamou atrib\n");
-                                                insere_simbolo(&tabela_simbolos, $1, &$3, NULL);
+    |   INT ID ATRIB expr   {                   generico expr; expr.ponteiro = &$4; expr.tipo = "int";
+                                                generico tipo; tipo.ponteiro = $1; tipo.tipo = "string";
+                                                printf("Generico\n");
+                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo);
                                                 //printList(tabela_simbolos);
                                                 }
+                            
+
+    |   ID ATRIB expr       {                   //printf("Chamou atrib\n");
+                                                generico expr; expr.ponteiro = &$3; expr.tipo = "int";
+                                                insere_simbolo(&tabela_simbolos, $1, &expr, NULL);
+                                                //printList(tabela_simbolos);
+                                                }
+                                        
+    |   ID                  {                   //printf("So ID: %s\n", $1);
+                                                insere_simbolo(&tabela_simbolos, $1, NULL, NULL);
+                                                }
+    ;
+
+print:  PRINT P1 valores P2
     ;
 
 %%
@@ -189,22 +213,26 @@ void yyerror(char const* s) {
     printf("\n================>>>>>>ERRO: %s\n", s);
 }
 
-void insere_simbolo(struct tbs **lista, char *simbolo, void* valor, void *tipo) {  
-    //printf("ENtrou insere\n");
+void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico *tipo) {
+
     if(*lista) {
         struct tbs *aux = malloc(sizeof(tbs));
         aux = *lista;
-        while(aux) {
+        while (aux) {
             if (strcmp(aux->simbolo, simbolo) == 0) {
-                if(!tipo) {
-                    printf("tam: %zu\n", sizeof(*(int *) valor));
-                    if(sizeof(*(int *) valor) == tamanho_int) {
-                        aux->valor = *(int *) valor;
+                if(!tipo && valor) {
+                    
+                    if(strcmp(valor->tipo, aux->tipo)  == 0) {
+                        aux->valor = *(int *) valor->ponteiro;
                         return;
                     }
-                } else {
+                }
+                else if(tipo) {
                     //printf("Erro semantico!!!! Declaracao dupla\n");
                     print_erros(aux->simbolo, 1);
+                    return;
+                } else {
+                    // Variavel declarada
                     return;
                 }
             }
@@ -212,6 +240,7 @@ void insere_simbolo(struct tbs **lista, char *simbolo, void* valor, void *tipo) 
         }
     }
 
+    
     if(!tipo) {
         //printf("Erro semantico!!!! Variavel não declarada\n");
         print_erros(simbolo, 2);
@@ -226,10 +255,10 @@ void insere_simbolo(struct tbs **lista, char *simbolo, void* valor, void *tipo) 
         //printf("Passou maloc 1\n");
 
         if(valor) {
-            novoSimbolo->valor = *(int *) valor;
+            novoSimbolo->valor = *(int *) valor->ponteiro;
         }
         //printf("Passou maloc 2\n");
-        novoSimbolo->tipo =  tipo;
+        novoSimbolo->tipo = (char *) tipo->ponteiro;
         
         
         novoSimbolo->prox = NULL;
@@ -251,6 +280,7 @@ void insere_simbolo(struct tbs **lista, char *simbolo, void* valor, void *tipo) 
 }
 
 void printList(struct tbs *lista) {
+    printf("\n");
     while(lista) {
         printf("Simbolo: %s\n", lista->simbolo);
         printf("Tipo: %s\n", lista->tipo);
