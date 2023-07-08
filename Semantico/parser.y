@@ -1,35 +1,7 @@
 %{
-    #include <stdio.h>
-    #include <string.h>
-    #include <stdlib.h>
-    
-    typedef struct tbs {
-        char *simbolo;
-        char *tipo;
-        int valor;
+    #include "funcs.h"
 
-        struct tbs *prox;
-    } tbs;
-
-    typedef struct generico {
-        void *dado;
-        char *tipo;
-    } generico;
-
-    int yylex(void);
-    void yyerror(char const* s);
-    void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico *tipo);
-    void printList(struct tbs *lista);
-    void negrito(int status);
-    void italico(int status);
-    void cor_terminal(int colorCode, int status);
-    void print_erros(char *simbolo, int erro);
-
-    struct tbs *tabela_simbolos = NULL;    
-
-    size_t tamanho_int = sizeof(int);
-    size_t tamanho_char = sizeof(char);
-    extern int linha_count;
+    struct tbs *tabela_simbolos = NULL;
 
 %}
 
@@ -94,6 +66,7 @@
 
 programa: 
     |   programa instr
+    |   error
     ;
 
 instr:  var PTV
@@ -124,11 +97,16 @@ parametros:
 
 compara:
         valores operadores valores
+    |   error
     ;
 
 valores:
-    |   expr
-    |   var
+        expr
+    |   ID  {                                   printf("Ocorrencia\n");
+                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                insere_simbolo(&tabela_simbolos, $1, &expr);
+                                                }
+    |   error
     ;
 
 operadores:
@@ -155,42 +133,41 @@ expr_interna:
     ;
 
 
-var:    INT ID      {                           // printf("id: %s\n", $2);    
-                                                // tabela_simbolos = malloc(sizeof(tbs));
-                                                // if(tabela_simbolos) {
-                                                //     printf("SUCESSO\n");
-                                                // }
-                                                // tabela_simbolos->valor = 1;
-                                                // tabela_simbolos->simbolo = "var";
-                                                // tabela_simbolos->tipo = "int";
-                                                // tabela_simbolos->prox = NULL;
-                                                // int a = 2;
-                                                //insere_simbolo(&tabela_simbolos, $2, NULL, $1);
+var:    INT ID      {                           printf("Declara\n");
+                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = $1;
+                                                insere_simbolo(&tabela_simbolos, $2, &expr);
                                                 }
                                     
-    |   INT ID PAR1 NUMERO PAR2     {           printf("Caso vetor\n") ;
-                                                generico expr; expr.dado = &$4; expr.tipo = "int";
-                                                generico tipo_declarado; tipo_declarado.dado = $1; tipo_declarado.tipo = "string";
-                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo_declarado);
+    |   INT ID PAR1 NUMERO PAR2     {           printf("Caso vetor\n");
+                                                generico expr; expr.dado = &$4; expr.dado_tipo = $1; expr.tipo_regra = $1;
+                                                insere_simbolo(&tabela_simbolos, $2, &expr);
                                                 }
 
-    |   INT ID ATRIB expr   {                   generico expr; expr.dado = &$4; expr.tipo = "int";
-                                                generico tipo_declarado; tipo_declarado.dado = $1; tipo_declarado.tipo = "string";
-                                                printf("Generico\n");
-                                                insere_simbolo(&tabela_simbolos, $2, &expr, &tipo_declarado);
+    |   INT ID ATRIB expr   {                   printf("Declara com atribuicao\n");
+                                                generico expr; expr.dado = &$4; expr.dado_tipo = $1; expr.tipo_regra = $1;
+                                                insere_simbolo(&tabela_simbolos, $2, &expr);
                                                 //printList(tabela_simbolos);
                                                 }
                             
 
-    |   ID ATRIB expr       {                   //printf("Chamou atrib\n");
-                                                generico expr; expr.dado = &$3; expr.tipo = "int";
-                                                insere_simbolo(&tabela_simbolos, $1, &expr, NULL);
+    |   ID ATRIB expr       {                   printf("Atribuicao\n");
+                                                generico expr; expr.dado = &$3; expr.dado_tipo = "int"; expr.tipo_regra = "";
+                                                insere_simbolo(&tabela_simbolos, $1, &expr);
                                                 //printList(tabela_simbolos);
                                                 }
+    
+    |   INT ID ATRIB ID         {               printf("Declara com Atribuicao VAR\n");
+                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = $1;
+                                                insere_simbolo(&tabela_simbolos, $2, &expr);
+                                                //printf("Atribuicao com variavel: %s\n", retorna_tipo(&tabela_simbolos, $1));
+                                                atrib_var(&tabela_simbolos, $2, $4);
+                                                //generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                }
 
-                                        
-    |   ID                  {                   //printf("So ID: %s\n", $1);
-                                                insere_simbolo(&tabela_simbolos, $1, NULL, NULL);
+    |   ID ATRIB ID         {                   printf("Atribuicao VAR\n");
+                                                //printf("Atribuicao com variavel: %s\n", retorna_tipo(&tabela_simbolos, $1));
+                                                atrib_var(&tabela_simbolos, $1, $3);
+                                                //generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
                                                 }
     ;
 
@@ -214,179 +191,10 @@ int main(int argc, char *argv[]) {
 
     fclose(yyin);
 
+    printList(tabela_simbolos);
+
     return 0;
 }
 
 
 
-void insere_simbolo(struct tbs **lista, char *simbolo, generico *valor, generico *tipo) {
-
-    if(*lista) {
-        struct tbs *aux = malloc(sizeof(tbs));
-        aux = *lista;
-        while (aux) {
-            if (strcmp(aux->simbolo, simbolo) == 0) {
-                if(!tipo && valor) {
-                    
-                    if(strcmp(valor->tipo, aux->tipo)  == 0) {
-                        aux->valor = *(int *) valor->dado;
-                        return;
-                    }
-                }
-                else if(tipo) {
-                    //printf("Erro semantico!!!! Declaracao dupla\n");
-                    print_erros(aux->simbolo, 1);
-                    return;
-                } else {
-                    // Variavel declarada
-                    return;
-                }
-            }
-            aux = aux-> prox;
-        }
-    }
-
-    
-    if(!tipo) {
-        //printf("Erro semantico!!!! Variavel não declarada\n");
-        print_erros(simbolo, 2);
-        return;
-    }
-
-
-    struct tbs *novoSimbolo = malloc(sizeof(tbs));
-    // printf("Passou maloc\n");
-    if(novoSimbolo) {
-        novoSimbolo->simbolo = simbolo;
-        //printf("Passou maloc 1\n");
-
-        if(valor) {
-            novoSimbolo->valor = *(int *) valor->dado;
-        }
-        //printf("Passou maloc 2\n");
-        novoSimbolo->tipo = (char *) tipo->dado;
-        
-        
-        novoSimbolo->prox = NULL;
-
-        if (*lista == NULL){
-            *lista = novoSimbolo;
-        } else {
-            struct tbs *aux = malloc(sizeof(tbs));
-            aux = *lista;
-            while (aux->prox) {
-                aux = aux->prox;
-            }
-            aux->prox = novoSimbolo;
-        }
-
-    } else {
-        printf("Erro ao inserir simbolo\n");
-    }
-}
-
-void printList(struct tbs *lista) {
-    printf("\n");
-    while(lista) {
-        printf("Simbolo: %s\n", lista->simbolo);
-        printf("Tipo: %s\n", lista->tipo);
-        printf("Valor: %d\n\n", lista->valor);
-        
-        lista = lista->prox;
-    }
-}
-
-void negrito(int status) {
-    static const char *s[] = {"\x1b[0m", "\x1b[1m"};
-    printf("%s", s[!!status]);
-}
-
-void italico(int status) {
-    static const char *s[] = {"\x1b[0m", "\x1b[3m"};
-    printf("%s", s[!!status]);
-}
-
-void cor_terminal(int colorCode, int status) {
-    static const char *s[] = {"\x1b[0m", "\x1b[3%dm"};
-    printf(s[!!status], colorCode);
-}
-
-void print_erros(char *simbolo, int erro) {
-    if(erro == 1) {
-        cor_terminal(6, 1);
-        printf("\n(linha:%d) : ", linha_count+1 ); cor_terminal(2, 0);
-
-        negrito(1); cor_terminal(1, 1);
-        printf("Erro semantico >>>>>>>>>>> "); cor_terminal(1, 0); negrito(0);
-
-        cor_terminal(2, 1);
-        printf(" Dupla declaracao "); cor_terminal(2, 0);
-
-        negrito(1); cor_terminal(5, 1);
-        printf(" '%s'\n", simbolo); cor_terminal(5, 0); negrito(0);
-    }
-    else if(erro == 2) {
-        cor_terminal(6, 1);
-        printf("\n(linha:%d) : ", linha_count+1 ); cor_terminal(2, 0);
-
-        negrito(1); cor_terminal(1, 1);
-        printf("Erro semantico >>>>>>>>>>> "); cor_terminal(1, 0); negrito(0);
-        
-        cor_terminal(2, 1);
-        printf(" Variavel"); cor_terminal(2, 0);
-
-        negrito(1); cor_terminal(5, 1);
-        printf(" '%s' ", simbolo); cor_terminal(5, 0); negrito(0);
-
-        cor_terminal(2, 1);
-        printf("não declarada!!\n\n"); cor_terminal(2, 0);
-    }
-}
-
-void yyerror(char const* s) {
-    int j = 0;
-    char aux[strlen(s)];
-    printf("\n");
-    for (int i=0; i<strlen(s); i++) {
-        if (s[i] != ' ') {
-            aux[j] = s[i];
-            j++;
-        } else {
-            if (strcmp(aux, "syntax") == 0) {
-                aux[j] = ' ';
-                j++;
-                
-                //cor_terminal(6, 1); printf("%s\n", aux); cor_terminal(6, 0);
-            } else {
-                
-                if(aux[j] != ',' && strlen(aux) == 14) {
-                    aux[j] = '\0';
-                }
-                
-                if (strcmp(aux, "syntax error,") == 0 || strcmp(aux, "syntax error,V") == 0) {
-                    cor_terminal(6, 1);
-                    printf("\n(linha:%d) : ", linha_count+1 ); cor_terminal(2, 0);
-                    cor_terminal(1, 1); negrito(1); printf("Erro de Sintatico :: "); negrito(0); cor_terminal(1, 0);
-                }
-                else if (strcmp(aux, "unexpected") == 0) {
-                    cor_terminal(2, 1); printf("Token inesperado: "); cor_terminal(2, 0);
-                }
-                else if (strcmp(aux, "expecting") == 0) {
-                    cor_terminal(2, 1); printf(" :: Era esperado: "); cor_terminal(2, 0);
-                }
-                else if (strcmp(aux, "or") == 0) {
-                    cor_terminal(2, 1); printf(", ou "); cor_terminal(2, 0);
-                } else {
-                    if(aux[j-1] == ',') {
-                        aux[j-1] = '\0';
-                    }
-                    cor_terminal(4, 1); negrito(1); printf("%s", aux); cor_terminal(2, 0); negrito(0);
-                }    
-                memset(aux, 0, sizeof(aux));
-                j = 0;
-            }   
-        }
-    }
-    cor_terminal(4, 1); negrito(1); printf("%s\n", aux); cor_terminal(2, 0); negrito(0);
-    printf("\n");
-}

@@ -1,0 +1,13 @@
+int a = 0;
+int c;
+
+
+
+
+if (a == a) {
+	a = 10;
+}
+
+a = b;
+
+int c = b;
