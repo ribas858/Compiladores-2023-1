@@ -492,9 +492,10 @@ char *yytext;
     int linha_count = 0;
     int cap_menos = 0;
     int cap_parentese = 0;
+    int num_count = 0;
 
-#line 497 "lex.yy.c"
 #line 498 "lex.yy.c"
+#line 499 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -711,10 +712,10 @@ YY_DECL
 		}
 
 	{
-#line 22 "scanner.l"
+#line 23 "scanner.l"
 
 
-#line 718 "lex.yy.c"
+#line 719 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -773,15 +774,15 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 24 "scanner.l"
-{   //printf("Int: %s\n\n", yytext);
+#line 25 "scanner.l"
+{   printf("Int: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return INT;
         }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 29 "scanner.l"
+#line 30 "scanner.l"
 {   //printf("Void: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return VOID;
@@ -789,15 +790,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 34 "scanner.l"
-{   //printf("If: %s\n\n", yytext);
+#line 35 "scanner.l"
+{   printf("If: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IF;
         }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 39 "scanner.l"
+#line 40 "scanner.l"
 {   //printf("Else: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return ELSE;
@@ -805,7 +806,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 44 "scanner.l"
+#line 45 "scanner.l"
 {   //printf("While: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return WHILE;
@@ -813,7 +814,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 49 "scanner.l"
+#line 50 "scanner.l"
 {   //printf("Print: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return PRINT;
@@ -821,7 +822,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 54 "scanner.l"
+#line 55 "scanner.l"
 {   //printf("Return: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return RETURN;
@@ -829,7 +830,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 59 "scanner.l"
+#line 60 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return MAIS;
@@ -837,7 +838,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 64 "scanner.l"
+#line 65 "scanner.l"
 {   cap_menos++;
             if (cap_menos == 1) {
                 //printf("\nOperador Matematico: %s\n\n", yytext);
@@ -848,7 +849,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 72 "scanner.l"
+#line 73 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return MULT;
@@ -856,7 +857,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 77 "scanner.l"
+#line 78 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return DIV;
@@ -864,23 +865,25 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 82 "scanner.l"
+#line 83 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
-            yylval.caracter = yytext[0]; 
+            //yylval.caracter = yytext[0]; 
+            yylval.string = strdup(yytext);
             return MENOR;
         }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 87 "scanner.l"
+#line 89 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
-            yylval.caracter = yytext[0]; 
+            //yylval.caracter = yytext[0];
+            yylval.string = strdup(yytext);
             return MAIOR;
         }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 92 "scanner.l"
+#line 95 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return MENOR_IGUAL;
@@ -888,7 +891,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 97 "scanner.l"
+#line 100 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return MAIOR_IGUAL;
@@ -896,7 +899,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 102 "scanner.l"
+#line 105 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IGUAL;
@@ -904,7 +907,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 107 "scanner.l"
+#line 110 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return DIF;
@@ -912,7 +915,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 112 "scanner.l"
+#line 115 "scanner.l"
 {   //printf("\nOperador de Atribuicao: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             return ATRIB;
@@ -920,7 +923,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 117 "scanner.l"
+#line 120 "scanner.l"
 {   //printf("Ponto e virgula: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             return PTV;
@@ -928,7 +931,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 122 "scanner.l"
+#line 125 "scanner.l"
 {   //printf("Abre Parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             cap_parentese = 1;
@@ -937,7 +940,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 128 "scanner.l"
+#line 131 "scanner.l"
 {   //printf("Fecha Parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return P2;
@@ -945,7 +948,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 133 "scanner.l"
+#line 136 "scanner.l"
 {   //printf("\nAbre Chaves: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return CHV1;
@@ -953,7 +956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 138 "scanner.l"
+#line 141 "scanner.l"
 {   //printf("\nFecha Chaves: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return CHV2;
@@ -961,7 +964,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 143 "scanner.l"
+#line 146 "scanner.l"
 {   //printf("\nAbre parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return PAR1;
@@ -969,7 +972,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 148 "scanner.l"
+#line 151 "scanner.l"
 {   //printf("\nFecha parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return PAR2;
@@ -977,7 +980,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 153 "scanner.l"
+#line 156 "scanner.l"
 {   //printf("\nVirgula: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return VG;
@@ -985,8 +988,9 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 158 "scanner.l"
+#line 161 "scanner.l"
 {  //printf("\nNumero: %s %d %d\n\n", yytext, cap_menos, cap_parentese);
+            num_count++;
             if(cap_menos == 2 && cap_parentese == 1) {
                 yylval.inteiro = atoi(yytext) * (-1);
                 cap_menos = 0;
@@ -1007,13 +1011,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 177 "scanner.l"
+#line 181 "scanner.l"
 {  //printf("\nComentario: %s\n\n", yytext);
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 180 "scanner.l"
+#line 184 "scanner.l"
 {   //printf("\nIdentificador (Variavel): %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return ID;
@@ -1022,7 +1026,7 @@ YY_RULE_SETUP
 case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
-#line 185 "scanner.l"
+#line 189 "scanner.l"
 {   if (yytext[0] == '\n') {
                 linha_count++;
             }
@@ -1031,16 +1035,16 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 191 "scanner.l"
+#line 195 "scanner.l"
 {   //printf("\nErro Lexico: Nao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng);
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 194 "scanner.l"
+#line 198 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 1044 "lex.yy.c"
+#line 1048 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2045,5 +2049,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 194 "scanner.l"
+#line 198 "scanner.l"
 

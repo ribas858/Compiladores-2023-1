@@ -73,8 +73,11 @@
 
     struct tbs *tabela_simbolos = NULL;
 
+    int passagem = 1;
+    int tem_else = 0;
 
-#line 78 "parser.tab.c"
+
+#line 81 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -157,14 +160,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 11 "parser.y"
+#line 14 "parser.y"
 
     int inteiro;
     char *string;
     char caracter;
     void *generico;
 
-#line 168 "parser.tab.c"
+#line 171 "parser.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -278,7 +281,7 @@ typedef int yytype_uint16;
 #define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
 
 /* Stored state numbers (used for stacks). */
-typedef yytype_int8 yy_state_t;
+typedef yytype_uint8 yy_state_t;
 
 /* State numbers in computations.  */
 typedef int yy_state_fast_t;
@@ -483,16 +486,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   163
+#define YYLAST   279
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  14
+#define YYNNTS  21
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  42
+#define YYNRULES  54
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  92
+#define YYNSTATES  134
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   285
@@ -540,13 +543,14 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    68,    68,    69,    70,    73,    74,    75,    76,    77,
-      78,    81,    82,    86,    89,    90,    95,    96,   100,   101,
-     105,   106,   113,   114,   115,   116,   117,   118,   123,   128,
-     133,   138,   143,   148,   151,   154,   158,   163,   168,   175,
-     181,   190,   197
+       0,    72,    72,    73,    74,    77,    78,    79,    80,    81,
+      82,    85,    85,    97,    97,   109,   109,   121,   121,   132,
+     136,   136,   148,   148,   160,   160,   172,   172,   182,   183,
+     188,   189,   194,   201,   210,   211,   212,   213,   214,   215,
+     220,   233,   247,   252,   265,   278,   282,   285,   289,   297,
+     321,   357,   397,   423,   443
 };
 #endif
 
@@ -559,8 +563,9 @@ static const char *const yytname[] =
   "PRINT", "RETURN", "MAIS", "MENOS", "MULT", "DIV", "MENOR", "MAIOR",
   "MENOR_IGUAL", "MAIOR_IGUAL", "IGUAL", "DIF", "ATRIB", "PTV", "P1", "P2",
   "CHV1", "CHV2", "PAR1", "PAR2", "VG", "NUMERO", "ID", "$accept",
-  "programa", "instr", "if", "while", "func", "parametros", "compara",
-  "valores", "operadores", "expr", "expr_interna", "var", "print", YY_NULLPTR
+  "programa", "instr", "if", "$@1", "$@2", "$@3", "$@4", "while", "$@5",
+  "$@6", "$@7", "$@8", "func", "parametros", "valores", "operadores",
+  "expr", "expr_interna", "var", "print", YY_NULLPTR
 };
 #endif
 
@@ -576,12 +581,12 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-49)
+#define YYPACT_NINF (-51)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-20)
+#define YYTABLE_NINF (-3)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -590,16 +595,20 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      13,   -49,    37,   -49,   -22,   -15,     6,    14,    26,    46,
-      18,   -49,    17,   -49,   -49,    30,    39,   -17,    44,    48,
-      48,    46,   -49,     3,   -49,   -49,    51,    16,    50,    58,
-      45,   -49,   -49,    60,    46,    42,    46,    61,    62,   129,
-      63,    71,    -4,   -49,     3,     3,    52,    54,   -49,    16,
-      49,   -49,    16,    78,    80,    85,    91,    92,   -49,   -49,
-     -49,   -49,   -49,   -49,    46,    93,   -49,   -49,    50,    50,
-     -49,   -49,    88,    97,    46,   -49,    98,    49,   -49,    49,
-     -49,    49,   -49,    49,    95,   102,   126,   133,   -49,   -49,
-     -49,   -49
+      13,   -51,    23,   -51,   -26,    -5,    16,    22,    32,    11,
+      39,   -51,    63,   -51,   -51,    58,    62,    29,    64,    28,
+      51,    11,   -51,    95,   -51,   -51,    69,    24,    82,    55,
+      74,   -51,   -51,    77,    11,    71,    11,   239,   260,   239,
+     260,    79,    -4,   -51,    95,    95,    80,    84,   -51,    24,
+      67,   -51,    24,   100,   107,    91,   105,   -51,   -51,   -51,
+     -51,   -51,   -51,    81,    86,    90,    92,   -51,   -51,    82,
+      82,   -51,   -51,   122,   118,    11,   -51,   124,   123,    78,
+     128,   139,   130,   177,   132,   215,   -51,    67,   -51,    67,
+     -51,   -51,   -51,   -51,   -51,   -51,   -51,   -51,   129,   136,
+     133,   134,   149,   156,   162,   165,   169,   170,   -51,   -51,
+      67,    67,    67,    67,    67,    67,    67,    67,   160,   167,
+     174,   198,   205,   212,   236,   243,   -51,   -51,   -51,   -51,
+     -51,   -51,   -51,   -51
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -608,74 +617,102 @@ static const yytype_int16 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        0,     4,     0,     1,     0,     0,     0,     0,     0,     0,
-       0,     3,     7,     8,     9,     0,     0,    36,     0,     0,
-       0,     0,    35,     0,    33,    21,     0,    20,    30,     0,
-       0,     5,     6,     0,     0,     0,     0,    35,     0,     0,
-       0,     0,     0,    10,     0,     0,     0,     0,    41,    39,
-       0,    40,    38,     0,    17,     0,     0,     0,    23,    22,
-      25,    24,    26,    27,     0,     0,    42,    34,    29,    28,
-      31,    32,     0,     0,     0,    37,     0,     0,    18,     0,
-      12,     0,    16,     0,     0,     0,     0,     0,    11,    13,
-      15,    14
+       0,     3,     7,     8,     9,     0,     0,    48,     0,     0,
+       0,     0,    47,     0,    45,    33,     0,    32,    42,     0,
+       0,     5,     6,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,    10,     0,     0,     0,     0,    53,    51,
+       0,    52,    50,     0,    31,     0,     0,    35,    34,    37,
+      36,    38,    39,     0,     0,     0,     0,    54,    46,    41,
+      40,    43,    44,     0,     0,     0,    49,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    19,     0,    30,     0,
+      17,    13,    15,    11,    26,    22,    24,    20,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    29,    28,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    18,    14,    16,    12,
+      27,    23,    25,    21
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -49,   -48,   -49,   -49,   -49,   -49,   -35,    53,    -9,   -49,
-       1,    20,   -49,   -49
+     -51,   -50,   -51,   -51,   -51,   -51,   -51,   -51,   -51,   -51,
+     -51,   -51,   -51,   -51,   -33,    15,   -30,   -18,    60,   -51,
+     -51
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,    11,    12,    13,    14,    53,    38,    54,    64,
-      27,    28,    15,    16
+      -1,     2,    11,    12,   103,   101,   102,   100,    13,   107,
+     105,   106,   104,    14,    53,    54,    63,    27,    28,    15,
+      16
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule whose
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
-static const yytype_int8 yytable[] =
+static const yytype_int16 yytable[] =
 {
-      26,    56,    72,    33,    22,    34,    44,    45,    17,    35,
-      39,    39,    41,    -2,     1,    18,    -2,    -2,    -2,    67,
-      -2,    -2,    -2,    30,    42,    23,    44,    45,    19,    84,
-      49,    85,    24,    86,    52,    87,    20,     3,    29,    82,
-       4,     5,     6,    -2,     7,     8,     9,    22,    21,    37,
-       1,    31,    -2,    -2,    -2,    78,    -2,    -2,    -2,    22,
-      32,    22,    46,    47,    68,    69,    36,    10,    23,    50,
-      23,    55,    43,    40,    -2,    24,    25,    24,    25,    -2,
-      23,    70,    23,    71,   -19,    57,    65,    24,    48,    24,
-      51,     4,     5,     6,    66,     7,     8,     9,     4,     5,
-       6,    73,     7,     8,     9,     4,     5,     6,    74,     7,
-       8,     9,    75,    80,    76,     0,    77,    79,    10,     0,
-      88,    81,    83,     0,     0,    10,     0,    89,     0,     4,
+      73,    38,    40,    56,    17,    42,    44,    45,    64,    65,
+      66,    49,    22,    -2,     1,    52,    -2,    -2,    -2,    68,
+      -2,    -2,    -2,     3,    26,    18,     4,     5,     6,    22,
+       7,     8,     9,    23,    44,    45,    41,    98,    19,    99,
+      24,    25,    88,    -2,    20,    79,    81,    83,    85,    33,
+      23,    34,    22,    10,    21,    35,    22,    24,    37,    29,
+     118,   119,   120,   121,   122,   123,   124,   125,     1,    30,
+      -2,    -2,    -2,    23,    -2,    -2,    -2,    23,    22,    31,
+      24,    39,    22,    32,    24,    48,    36,    22,    44,    45,
+      43,    22,    -2,    22,    46,    47,    22,    -2,    50,    23,
+      55,    91,    67,    23,    69,    70,    24,    51,    23,    71,
+      24,    78,    23,    72,    23,    24,    80,    23,    76,    24,
+      82,    24,    84,    74,    24,     4,     5,     6,    77,     7,
+       8,     9,     4,     5,     6,    75,     7,     8,     9,     4,
+       5,     6,    87,     7,     8,     9,    90,    86,    89,    44,
+      45,    92,    10,    94,   108,    96,     0,   110,   111,    10,
+       0,   109,    93,     4,     5,     6,    10,     7,     8,     9,
+       4,     5,     6,   112,     7,     8,     9,     4,     5,     6,
+     113,     7,     8,     9,     0,   126,   114,    44,    45,   115,
+      10,     0,   127,   116,   117,     0,     0,    10,     0,   128,
+      95,     4,     5,     6,    10,     7,     8,     9,     4,     5,
+       6,     0,     7,     8,     9,     4,     5,     6,     0,     7,
+       8,     9,     0,   129,     0,    44,    45,     0,    10,     0,
+     130,     0,     0,     0,     0,    10,     0,   131,    97,     4,
        5,     6,    10,     7,     8,     9,     4,     5,     6,     0,
-       7,     8,     9,    58,    59,    60,    61,    62,    63,     0,
-       0,    90,     0,     0,     0,     0,    10,     0,    91,     0,
-       0,     0,     0,    10
+       7,     8,     9,    57,    58,    59,    60,    61,    62,     0,
+       0,   132,     0,     0,     0,     0,    10,     0,   133,     0,
+      44,    45,     0,    10,    57,    58,    59,    60,    61,    62
 };
 
 static const yytype_int8 yycheck[] =
 {
-       9,    36,    50,    20,     1,    22,    10,    11,    30,    26,
-      19,    20,    21,     0,     1,    30,     3,     4,     5,    23,
-       7,     8,     9,     6,    23,    22,    10,    11,    22,    77,
-      29,    79,    29,    81,    33,    83,    22,     0,    20,    74,
-       3,     4,     5,    30,     7,     8,     9,     1,    22,     1,
-       1,    21,     3,     4,     5,    64,     7,     8,     9,     1,
-      21,     1,    12,    13,    44,    45,    22,    30,    22,    24,
-      22,    29,    21,    20,    25,    29,    30,    29,    30,    30,
-      22,    29,    22,    29,    23,    23,    23,    29,    30,    29,
-      30,     3,     4,     5,    23,     7,     8,     9,     3,     4,
-       5,    23,     7,     8,     9,     3,     4,     5,    28,     7,
-       8,     9,    27,    25,    23,    -1,    24,    24,    30,    -1,
-      25,    24,    24,    -1,    -1,    30,    -1,    25,    -1,     3,
+      50,    19,    20,    36,    30,    23,    10,    11,    38,    39,
+      40,    29,     1,     0,     1,    33,     3,     4,     5,    23,
+       7,     8,     9,     0,     9,    30,     3,     4,     5,     1,
+       7,     8,     9,    22,    10,    11,    21,    87,    22,    89,
+      29,    30,    75,    30,    22,    63,    64,    65,    66,    20,
+      22,    22,     1,    30,    22,    26,     1,    29,    30,    20,
+     110,   111,   112,   113,   114,   115,   116,   117,     1,     6,
+       3,     4,     5,    22,     7,     8,     9,    22,     1,    21,
+      29,    30,     1,    21,    29,    30,    22,     1,    10,    11,
+      21,     1,    25,     1,    12,    13,     1,    30,    24,    22,
+      29,    23,    23,    22,    44,    45,    29,    30,    22,    29,
+      29,    30,    22,    29,    22,    29,    30,    22,    27,    29,
+      30,    29,    30,    23,    29,     3,     4,     5,    23,     7,
+       8,     9,     3,     4,     5,    28,     7,     8,     9,     3,
+       4,     5,    24,     7,     8,     9,    23,    25,    24,    10,
+      11,    23,    30,    23,    25,    23,    -1,    24,    24,    30,
+      -1,    25,    23,     3,     4,     5,    30,     7,     8,     9,
+       3,     4,     5,    24,     7,     8,     9,     3,     4,     5,
+      24,     7,     8,     9,    -1,    25,    24,    10,    11,    24,
+      30,    -1,    25,    24,    24,    -1,    -1,    30,    -1,    25,
+      23,     3,     4,     5,    30,     7,     8,     9,     3,     4,
+       5,    -1,     7,     8,     9,     3,     4,     5,    -1,     7,
+       8,     9,    -1,    25,    -1,    10,    11,    -1,    30,    -1,
+      25,    -1,    -1,    -1,    -1,    30,    -1,    25,    23,     3,
        4,     5,    30,     7,     8,     9,     3,     4,     5,    -1,
        7,     8,     9,    14,    15,    16,    17,    18,    19,    -1,
       -1,    25,    -1,    -1,    -1,    -1,    30,    -1,    25,    -1,
-      -1,    -1,    -1,    30
+      10,    11,    -1,    30,    14,    15,    16,    17,    18,    19
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -683,35 +720,41 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     1,    32,     0,     3,     4,     5,     7,     8,     9,
-      30,    33,    34,    35,    36,    43,    44,    30,    30,    22,
-      22,    22,     1,    22,    29,    30,    39,    41,    42,    20,
-       6,    21,    21,    20,    22,    26,    22,     1,    38,    39,
-      38,    39,    41,    21,    10,    11,    12,    13,    30,    41,
-      24,    30,    41,    37,    39,    29,    37,    23,    14,    15,
-      16,    17,    18,    19,    40,    23,    23,    23,    42,    42,
-      29,    29,    32,    23,    28,    27,    23,    24,    39,    24,
-      25,    24,    37,    24,    32,    32,    32,    32,    25,    25,
-      25,    25
+      30,    33,    34,    39,    44,    50,    51,    30,    30,    22,
+      22,    22,     1,    22,    29,    30,    46,    48,    49,    20,
+       6,    21,    21,    20,    22,    26,    22,    30,    48,    30,
+      48,    46,    48,    21,    10,    11,    12,    13,    30,    48,
+      24,    30,    48,    45,    46,    29,    45,    14,    15,    16,
+      17,    18,    19,    47,    47,    47,    47,    23,    23,    49,
+      49,    29,    29,    32,    23,    28,    27,    23,    30,    48,
+      30,    48,    30,    48,    30,    48,    25,    24,    45,    24,
+      23,    23,    23,    23,    23,    23,    23,    23,    32,    32,
+      38,    36,    37,    35,    43,    41,    42,    40,    25,    25,
+      24,    24,    24,    24,    24,    24,    24,    24,    32,    32,
+      32,    32,    32,    32,    32,    32,    25,    25,    25,    25,
+      25,    25,    25,    25
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    31,    32,    32,    32,    33,    33,    33,    33,    33,
-      33,    34,    34,    35,    36,    36,    37,    37,    38,    38,
-      39,    39,    40,    40,    40,    40,    40,    40,    41,    41,
-      41,    42,    42,    42,    42,    42,    43,    43,    43,    43,
-      43,    43,    44
+      33,    35,    34,    36,    34,    37,    34,    38,    34,    34,
+      40,    39,    41,    39,    42,    39,    43,    39,    44,    44,
+      45,    45,    46,    46,    47,    47,    47,    47,    47,    47,
+      48,    48,    48,    49,    49,    49,    49,    49,    50,    50,
+      50,    50,    50,    50,    51
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     0,     2,     1,     2,     2,     1,     1,     1,
-       3,     7,     5,     7,     8,     8,     3,     1,     3,     1,
-       1,     1,     1,     1,     1,     1,     1,     1,     3,     3,
-       1,     3,     3,     1,     3,     1,     2,     5,     4,     3,
-       4,     3,     4
+       3,     0,    10,     0,    10,     0,    10,     0,    10,     5,
+       0,    10,     0,    10,     0,    10,     0,    10,     8,     8,
+       3,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       3,     3,     1,     3,     3,     1,     3,     1,     2,     5,
+       4,     3,     4,     3,     4
 };
 
 
@@ -1406,147 +1449,474 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 19:
-#line 101 "parser.y"
-                                    { }
-#line 1413 "parser.tab.c"
+  case 11:
+#line 85 "parser.y"
+                                      {                         printf("CASO IF expr expr..%d\n", num_count);
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1((yyvsp[-3].inteiro), "", (yyvsp[-2].string), (yyvsp[-1].inteiro), "", 1, 0);
+                                                                }
+                                                                
+                                    }
+#line 1462 "parser.tab.c"
     break;
 
-  case 21:
-#line 106 "parser.y"
-            {                                   printf("Ocorrencia\n");
-                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
-                                                insere_simbolo(&tabela_simbolos, (yyvsp[0].string), &expr);
-                                                }
-#line 1422 "parser.tab.c"
-    break;
+  case 12:
+#line 91 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(0);
+                                                                }
 
-  case 28:
-#line 123 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) - (yyvsp[0].inteiro);
-                                                expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
-                                                //printf("menos: %d - %d\n", $1, $3);
-                                                }
-#line 1431 "parser.tab.c"
-    break;
-
-  case 29:
-#line 128 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) + (yyvsp[0].inteiro);
-                                                expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
-                                                //printf("mais: %d + %d\n", $1, $3);
-                                                }
-#line 1440 "parser.tab.c"
-    break;
-
-  case 30:
-#line 133 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[0].inteiro);
-                                                }
-#line 1447 "parser.tab.c"
-    break;
-
-  case 31:
-#line 138 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) * (yyvsp[0].inteiro);
-                                                expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
-                                                //printf("mult: %d * %d\n", $1, $3);
-                                                }
-#line 1456 "parser.tab.c"
-    break;
-
-  case 32:
-#line 143 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) / (yyvsp[0].inteiro);
-                                                expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
-                                                //printf("div: %d / %d\n", $1, $3);
-                                                }
-#line 1465 "parser.tab.c"
-    break;
-
-  case 33:
-#line 148 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[0].inteiro);
-                                                }
+                                    }
 #line 1472 "parser.tab.c"
     break;
 
-  case 34:
-#line 151 "parser.y"
-                                    {           (yyval.inteiro) = (yyvsp[-1].inteiro);
-                                                }
-#line 1479 "parser.tab.c"
+  case 13:
+#line 97 "parser.y"
+                                    {                           printf("CASO IF ID expr..\n");
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1(0, (yyvsp[-3].string), (yyvsp[-2].string), (yyvsp[-1].inteiro), "", 2, 0);
+                                                                }
+                                                                
+                                    }
+#line 1484 "parser.tab.c"
     break;
 
-  case 35:
-#line 154 "parser.y"
-                                    {           }
-#line 1485 "parser.tab.c"
-    break;
+  case 14:
+#line 103 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(0);
+                                                                }
 
-  case 36:
-#line 158 "parser.y"
-                    {                           printf("Declara\n");
-                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = (yyvsp[-1].string);
-                                                insere_simbolo(&tabela_simbolos, (yyvsp[0].string), &expr);
-                                                }
+                                    }
 #line 1494 "parser.tab.c"
     break;
 
-  case 37:
-#line 163 "parser.y"
-                                    {           printf("Caso vetor\n");
-                                                generico expr; expr.dado = &(yyvsp[-1].inteiro); expr.dado_tipo = (yyvsp[-4].string); expr.tipo_regra = (yyvsp[-4].string);
-                                                insere_simbolo(&tabela_simbolos, (yyvsp[-3].string), &expr);
-                                                }
-#line 1503 "parser.tab.c"
+  case 15:
+#line 109 "parser.y"
+                                    {                           printf("CASO IF expr ID..\n");
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1((yyvsp[-3].inteiro), "", (yyvsp[-2].string), 0, (yyvsp[-1].string), 3, 0);
+                                                                }
+                                                                
+                                    }
+#line 1506 "parser.tab.c"
     break;
 
-  case 38:
-#line 168 "parser.y"
-                            {                   printf("Declara com atribuicao\n");
-                                                generico expr; expr.dado = &(yyvsp[0].inteiro); expr.dado_tipo = (yyvsp[-3].string); expr.tipo_regra = (yyvsp[-3].string);
-                                                insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr);
-                                                //printList(tabela_simbolos);
-                                                }
-#line 1513 "parser.tab.c"
+  case 16:
+#line 115 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(0);
+                                                                }
+
+                                    }
+#line 1516 "parser.tab.c"
     break;
 
-  case 39:
-#line 175 "parser.y"
-                            {                   printf("Atribuicao\n");
-                                                generico expr; expr.dado = &(yyvsp[0].inteiro); expr.dado_tipo = "int"; expr.tipo_regra = "";
-                                                insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr);
-                                                //printList(tabela_simbolos);
-                                                }
-#line 1523 "parser.tab.c"
+  case 17:
+#line 121 "parser.y"
+                                  {                             printf("CASO IF ID ID..\n");
+                                                                if(passagem == 2) {
+                                                                    if_part1(0, (yyvsp[-3].string), (yyvsp[-2].string), 0, (yyvsp[-1].string), 4, 0);
+                                                                }
+
+                                }
+#line 1527 "parser.tab.c"
     break;
 
-  case 40:
-#line 181 "parser.y"
-                                {               printf("Declara com Atribuicao VAR\n");
-                                                generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = (yyvsp[-3].string);
-                                                
-                                                if(insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr)) {
-                                                    atrib_var(&tabela_simbolos, (yyvsp[-2].string), (yyvsp[0].string));
-                                                }
-                                                //generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
-                                                }
+  case 18:
+#line 126 "parser.y"
+                                                     {          if(passagem == 2) {
+                                                                    if_part2(0);
+                                                                }
+                                }
 #line 1536 "parser.tab.c"
     break;
 
-  case 41:
-#line 190 "parser.y"
-                            {                   printf("Atribuicao VAR\n");
-                                                //printf("Atribuicao com variavel: %s\n", retorna_tipo(&tabela_simbolos, $1));
-                                                atrib_var(&tabela_simbolos, (yyvsp[-2].string), (yyvsp[0].string));
-                                                //generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+  case 20:
+#line 136 "parser.y"
+                                         {                      printf("CASO WHILE expr expr..%d\n", num_count);
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1((yyvsp[-3].inteiro), "", (yyvsp[-2].string), (yyvsp[-1].inteiro), "", 1, 1);
+                                                                }
+                                                                
+                                    }
+#line 1548 "parser.tab.c"
+    break;
+
+  case 21:
+#line 142 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(1);
+                                                                }
+
+                                    }
+#line 1558 "parser.tab.c"
+    break;
+
+  case 22:
+#line 148 "parser.y"
+                                       {                        printf("CASO WHILE ID expr..\n");
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1(0, (yyvsp[-3].string), (yyvsp[-2].string), (yyvsp[-1].inteiro), "", 2, 1);
+                                                                }
+                                                                
+                                    }
+#line 1570 "parser.tab.c"
+    break;
+
+  case 23:
+#line 154 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(1);
+                                                                }
+
+                                    }
+#line 1580 "parser.tab.c"
+    break;
+
+  case 24:
+#line 160 "parser.y"
+                                       {                        printf("CASO WHILE expr ID..\n");
+                                                                num_count = 0;
+                                                                if(passagem == 2) {
+                                                                    if_part1((yyvsp[-3].inteiro), "", (yyvsp[-2].string), 0, (yyvsp[-1].string), 3, 1);
+                                                                }
+                                                                
+                                    }
+#line 1592 "parser.tab.c"
+    break;
+
+  case 25:
+#line 166 "parser.y"
+                                                         {      if(passagem == 2) {
+                                                                    if_part2(1);
+                                                                }
+
+                                    }
+#line 1602 "parser.tab.c"
+    break;
+
+  case 26:
+#line 172 "parser.y"
+                                     {                          if(passagem == 2) {
+                                                                    if_part1(0, (yyvsp[-3].string), (yyvsp[-2].string), 0, (yyvsp[-1].string), 4, 1);
+                                                                }
+                                                                }
+#line 1611 "parser.tab.c"
+    break;
+
+  case 27:
+#line 175 "parser.y"
+                                                                                     {
+                                                                    if (passagem == 2) {
+                                                                        if_part2(1);
+                                                                    }
+                                                                }
+#line 1621 "parser.tab.c"
+    break;
+
+  case 32:
+#line 194 "parser.y"
+             {                                  if (passagem == 2) {
+                                                    // printf("numeros contador.... %d\n", num_count);
+                                                    
+                                                    num_count = 0;
                                                 }
-#line 1546 "parser.tab.c"
+        }
+#line 1632 "parser.tab.c"
+    break;
+
+  case 33:
+#line 201 "parser.y"
+            {                                   if (passagem == 1) {
+                                                    printf("Ocorrencia\n");
+                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                    insere_simbolo(&tabela_simbolos, (yyvsp[0].string), &expr, -1);
+                                                }
+            }
+#line 1643 "parser.tab.c"
+    break;
+
+  case 40:
+#line 220 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) - (yyvsp[0].inteiro);
+                                                if (passagem == 2) {
+                                                    char *reg = expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
+                                                    struct registrador *r = retorna_reg(&lista_regs, reg, 0, 1);
+                                                    if(r) {
+                                                        r->usado = 1;
+                                                    } else {
+                                                        printf("Registrador nao retornado\n");
+                                                    }
+                                                }
+                                                //printf("menos: %d - %d\n", $1, $3);
+                                                }
+#line 1660 "parser.tab.c"
+    break;
+
+  case 41:
+#line 233 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) + (yyvsp[0].inteiro);
+                                                if (passagem == 2) {
+                                                    char *reg = expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
+                                                    struct registrador *r = retorna_reg(&lista_regs, reg, 0, 1);
+                                                    if(r) {
+                                                        r->usado = 1;
+                                                    } else {
+                                                        printf("Registrador nao retornado\n");
+                                                    }
+                                                    printf("regist >>>>>>>>> %s\n", reg);
+                                                }
+                                                //printf("mais: %d + %d\n", $1, $3);
+                                                }
+#line 1678 "parser.tab.c"
+    break;
+
+  case 42:
+#line 247 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[0].inteiro);
+                                                }
+#line 1685 "parser.tab.c"
+    break;
+
+  case 43:
+#line 252 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) * (yyvsp[0].inteiro);
+                                                if (passagem == 2) {
+                                                    char *reg = expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
+                                                    struct registrador *r = retorna_reg(&lista_regs, reg, 0, 1);
+                                                    if(r) {
+                                                        r->usado = 1;
+                                                    } else {
+                                                        printf("Registrador nao retornado\n");
+                                                    }
+                                                }
+                                                //printf("mult: %d * %d\n", $1, $3);
+                                                }
+#line 1702 "parser.tab.c"
+    break;
+
+  case 44:
+#line 265 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[-2].inteiro) / (yyvsp[0].inteiro);
+                                                if (passagem == 2) {
+                                                    char *reg = expr_nasm((yyvsp[-1].caracter), (yyvsp[-2].inteiro), (yyvsp[0].inteiro));
+                                                    struct registrador *r = retorna_reg(&lista_regs, reg, 0, 1);
+                                                    if(r) {
+                                                        r->usado = 1;
+                                                    } else {
+                                                        printf("Registrador nao retornado\n");
+                                                    }
+                                                }
+                                                //printf("div: %d / %d\n", $1, $3);
+                                                }
+#line 1719 "parser.tab.c"
+    break;
+
+  case 45:
+#line 278 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[0].inteiro);
+                                                //char *reg = expr_nasm(' ', 0, $1);
+                                                }
+#line 1727 "parser.tab.c"
+    break;
+
+  case 46:
+#line 282 "parser.y"
+                                    {           (yyval.inteiro) = (yyvsp[-1].inteiro);
+                                                }
+#line 1734 "parser.tab.c"
+    break;
+
+  case 47:
+#line 285 "parser.y"
+                                    {           }
+#line 1740 "parser.tab.c"
+    break;
+
+  case 48:
+#line 289 "parser.y"
+                    {                           if (passagem == 1) {
+                                                    printf("Declara\n");
+                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = (yyvsp[-1].string);
+                                                    insere_simbolo(&tabela_simbolos, (yyvsp[0].string), &expr, -1);
+                                                    num_count = 0;
+                                                }
+                                                }
+#line 1752 "parser.tab.c"
+    break;
+
+  case 49:
+#line 297 "parser.y"
+                                    {           if (passagem == 1) {
+                                                    printf("Caso vetor\n");
+                                                    generico expr; expr.dado = &(yyvsp[-1].inteiro); expr.dado_tipo = (yyvsp[-4].string); expr.tipo_regra = (yyvsp[-4].string);
+                                                    insere_simbolo(&tabela_simbolos, (yyvsp[-3].string), &expr, -1);
+                                                    num_count = 0;
+                                                }
+                                                else if (passagem == 2) {
+                                                    printf("numeros contador.... %d\n", num_count);
+                                                    // if(num_count > 1) {
+                                                    //     struct tbs *simbolo = retorna_simbolo(&tabela_simbolos, $2);
+                                                    //     printf("Simb : %s\n", simbolo->simbolo);
+                                                    //     registrador *reg = retorna_valor_regs(&lista_regs, $4);
+                                                    //     if(reg) {
+                                                    //         fprintf(temp, "%s", "mov [");
+                                                    //         fprintf(temp, "%s], ", $2);
+                                                    //         fprintf(temp, "%s\n", reg->reg);
+                                                    //     } else {
+                                                    //         printf("Regs nao encontrado\n");
+                                                    //     }
+                                                    // }
+                                                    num_count = 0;
+                                                }
+                                                }
+#line 1780 "parser.tab.c"
+    break;
+
+  case 50:
+#line 321 "parser.y"
+                            {                   if (passagem == 1) {
+                                                    printf("Declara com atribuicao, %d %s\n", num_count, (yyvsp[-2].string));
+                                                    printRegs(lista_regs, 2);
+                                                    generico expr; expr.dado = &(yyvsp[0].inteiro); expr.dado_tipo = (yyvsp[-3].string); expr.tipo_regra = (yyvsp[-3].string);
+                                                    insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr, num_count);
+                                                    num_count = 0;
+                                                    //printList(tabela_simbolos);
+                                                }
+                                                else if (passagem == 2) {
+                                                    printf("numeros contador.... %d\n", num_count);
+                                                    if(num_count > 1) {
+                                                        struct tbs *simbolo = retorna_simbolo(&tabela_simbolos, (yyvsp[-2].string));
+                                                        printf("Simb : %s\n", simbolo->simbolo);
+                                                        registrador *reg = retorna_valor_regs(&lista_regs, (yyvsp[0].inteiro));
+                                                        if(reg) {
+                                                            fprintf(temp, "%s", "mov [");
+                                                            fprintf(temp, "%s], ", (yyvsp[-2].string));
+                                                            fprintf(temp, "%s\n", reg->reg);
+                                                        } else {
+                                                            printf("Regs nao encontrado\n");
+                                                        }
+                                                    }
+                                                    num_count = 0;
+                                                    struct registrador *lista = lista_regs;
+                                                    while(lista) {
+                                                        if(lista->usado == 1) {
+                                                            lista->usado = 0;
+                                                            lista->ocup = 0;
+                                                        }
+                                                        lista = lista->prox;
+                                                    }
+                                                    printRegs(lista_regs, 2);
+                                                }
+                                                }
+#line 1819 "parser.tab.c"
+    break;
+
+  case 51:
+#line 357 "parser.y"
+                            {                   if (passagem == 1) {
+                                                    printf("Atribuicao\n");
+                                                    generico expr; expr.dado = &(yyvsp[0].inteiro); expr.dado_tipo = "int"; expr.tipo_regra = "";
+                                                    insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr, num_count);
+                                                    num_count = 0;
+                                                    //printList(tabela_simbolos);
+                                                }
+                                                else if (passagem == 2) {
+                                                    printf("numeros contador.... %d\n", num_count);
+                                                    
+                                                    struct tbs *simbolo = retorna_simbolo(&tabela_simbolos, (yyvsp[-2].string));
+                                                    if(num_count > 1) {
+                                                        registrador *reg = retorna_valor_regs(&lista_regs, (yyvsp[0].inteiro));
+                                                        if(reg) {
+                                                            fprintf(temp, "%s", "mov [");
+                                                            fprintf(temp, "%s], ", (yyvsp[-2].string));
+                                                            fprintf(temp, "%s\n", reg->reg);
+                                                        } else {
+                                                            printf("Regs nao encontrado\n");
+                                                        }
+                                                    } else if(igual(simbolo->tipo, "int")) {
+                                                        fprintf(temp, "%s", "mov dword [");
+                                                        fprintf(temp, "%s], ", (yyvsp[-2].string));
+                                                        fprintf(temp, "%d\n\t\t", (yyvsp[0].inteiro));
+                                                    }
+                                            
+                                                    num_count = 0;
+
+                                                    struct registrador *lista = lista_regs;
+                                                    while(lista) {
+                                                        if(lista->usado == 1) {
+                                                            lista->usado = 0;
+                                                            lista->ocup = 0;
+                                                        }
+                                                        lista = lista->prox;
+                                                    }
+                                                    printRegs(lista_regs, 2);
+                                                }
+                                                }
+#line 1863 "parser.tab.c"
+    break;
+
+  case 52:
+#line 397 "parser.y"
+                                {               if (passagem == 1) {
+                                                    printf("Declara com Atribuicao VAR\n");
+                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = (yyvsp[-3].string);
+                                                    
+                                                    if(insere_simbolo(&tabela_simbolos, (yyvsp[-2].string), &expr, -1)) {
+                                                        atrib_var(&tabela_simbolos, (yyvsp[-2].string), (yyvsp[0].string));
+                                                    }
+                                                    //generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                }
+                                                else if (passagem == 2) {
+                                                    registrador *reg = retorna_reg(&lista_regs, "", 0, 3);
+                                                    struct tbs *simbolo1 = retorna_simbolo(&tabela_simbolos, (yyvsp[-2].string));
+                                                    if(simbolo1->opr_expr <= 1) {
+                                                        if(reg) {
+                                                            fprintf(temp, "%s", "mov ");
+                                                            fprintf(temp, "%s, ", reg->reg);
+                                                            fprintf(temp, "[%s]\n", (yyvsp[0].string));
+                                                        
+                                                            fprintf(temp, "%s", "mov [");
+                                                            fprintf(temp, "%s], ", (yyvsp[-2].string));
+                                                            fprintf(temp, "%s\n\t\t", reg->reg);
+                                                        }
+                                                    } 
+                                                }
+                                                }
+#line 1893 "parser.tab.c"
+    break;
+
+  case 53:
+#line 423 "parser.y"
+                            {                   if (passagem == 1) {
+                                                    printf("Atribuicao VAR\n");
+                                                    atrib_var(&tabela_simbolos, (yyvsp[-2].string), (yyvsp[0].string));
+                                                }
+                                                else if (passagem == 2) {
+                                                    registrador *reg = retorna_reg(&lista_regs, "", 0, 3);
+                                                    
+                                                    if(reg) {
+                                                        fprintf(temp, "%s", "mov ");
+                                                        fprintf(temp, "%s, ", reg->reg);
+                                                        fprintf(temp, "[%s]\n", (yyvsp[0].string));
+                                                    
+                                                        fprintf(temp, "%s", "mov [");
+                                                        fprintf(temp, "%s], ", (yyvsp[-2].string));
+                                                        fprintf(temp, "%s\n\t\t", reg->reg);
+                                                    }
+                                                }
+                                                }
+#line 1916 "parser.tab.c"
     break;
 
 
-#line 1550 "parser.tab.c"
+#line 1920 "parser.tab.c"
 
       default: break;
     }
@@ -1778,11 +2148,13 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 200 "parser.y"
+#line 446 "parser.y"
 
 
 
 int main(int argc, char *argv[]) {
+    rotulo = malloc(sizeof(struct labels));
+    ifs = 0;
     erro_count = 0;
     lista_regs = NULL;
     insere_reg(&lista_regs, "eax");
@@ -1805,17 +2177,23 @@ int main(int argc, char *argv[]) {
         printf("\nErro ao criar arquivo temporario..\n\n");
     }
     
-
+    printf("===================== PASSAGEM 1\n");
     yyparse();
 
-    /* fseek(yyin, 0, SEEK_SET);
+    vars_nasm(tabela_simbolos);
 
-    yyparse(); */
+    passagem = 2;
+    fseek(yyin, 0, SEEK_SET);
 
+    printf("===================== PASSAGEM 2\n");
+    yyparse();
+
+
+    fprintf(temp, "%s\n", "\nmov eax, 1\nmov ebx, 0\nint 80h");
     fclose(yyin);
     fclose(temp);
 
-    //printList(tabela_simbolos);
+    printList(tabela_simbolos);
 
     if(erro_count == 0) {
         char *nome = retorna_nome(retorna_nome(argv[1], 2), 1);    
@@ -1840,7 +2218,7 @@ int main(int argc, char *argv[]) {
         printf("\nErro ao DELETAR temporario..\n\n");
     }
 
-    printRegs(lista_regs);
+    printRegs(lista_regs, 2);
 
     return 0;
 }

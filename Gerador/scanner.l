@@ -5,6 +5,7 @@
     int linha_count = 0;
     int cap_menos = 0;
     int cap_parentese = 0;
+    int num_count = 0;
 
 %}
 
@@ -21,7 +22,7 @@ COMENTARIO "/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "*
 
 %%
 
-int     {   //printf("Int: %s\n\n", yytext);
+int     {   printf("Int: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return INT;
         }
@@ -31,7 +32,7 @@ void    {   //printf("Void: %s\n\n", yytext);
             return VOID;
         }
 
-if      {   //printf("If: %s\n\n", yytext);
+if      {   printf("If: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IF;
         }
@@ -80,12 +81,14 @@ return  {   //printf("Return: %s\n\n", yytext);
         }
 
 \<      {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
-            yylval.caracter = yytext[0]; 
+            //yylval.caracter = yytext[0]; 
+            yylval.string = strdup(yytext);
             return MENOR;
         }
 
 \>      {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
-            yylval.caracter = yytext[0]; 
+            //yylval.caracter = yytext[0];
+            yylval.string = strdup(yytext);
             return MAIOR;
         }
 
@@ -156,6 +159,7 @@ return  {   //printf("Return: %s\n\n", yytext);
         }
 
 {NUMERO} {  //printf("\nNumero: %s %d %d\n\n", yytext, cap_menos, cap_parentese);
+            num_count++;
             if(cap_menos == 2 && cap_parentese == 1) {
                 yylval.inteiro = atoi(yytext) * (-1);
                 cap_menos = 0;
