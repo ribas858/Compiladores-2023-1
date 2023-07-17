@@ -15,7 +15,7 @@
     int inteiro;
     char *string;
     char caracter;
-    void *generico;
+    void *gene;
 }
 
 // Tipos
@@ -94,7 +94,12 @@ if:     IF P1 expr operadores expr P2 {                         printf("CASO IF 
 
                                     }
 
-    |   IF P1 ID operadores expr P2 {                           printf("CASO IF ID expr..\n");
+    |   IF P1 ID operadores expr P2 {                           if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                }
+                                                                printf("CASO IF ID expr..\n");
                                                                 num_count = 0;
                                                                 if(passagem == 2) {
                                                                     if_part1(0, $3, $4, $5, "", 2, 0);
@@ -106,7 +111,12 @@ if:     IF P1 expr operadores expr P2 {                         printf("CASO IF 
 
                                     }
 
-    |   IF P1 expr operadores ID P2 {                           printf("CASO IF expr ID..\n");
+    |   IF P1 expr operadores ID P2 {                           if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $5, &expr, -1);
+                                                                }
+                                                                printf("CASO IF expr ID..\n");
                                                                 num_count = 0;
                                                                 if(passagem == 2) {
                                                                     if_part1($3, "", $4, 0, $5, 3, 0);
@@ -118,7 +128,13 @@ if:     IF P1 expr operadores expr P2 {                         printf("CASO IF 
 
                                     }
 
-    |   IF P1 ID operadores ID P2 {                             printf("CASO IF ID ID..\n");
+    |   IF P1 ID operadores ID P2 {                             if (passagem == 1) {
+                                                                    printf("Ocorrencia %s\n", $3);
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                    insere_simbolo(&tabela_simbolos, $5, &expr, -1);
+                                                                }
+                                                                printf("CASO IF ID ID..\n");
                                                                 if(passagem == 2) {
                                                                     if_part1(0, $3, $4, 0, $5, 4, 0);
                                                                 }
@@ -145,7 +161,12 @@ while:
 
                                     }
 
-    |   WHILE P1 ID operadores expr P2 {                        printf("CASO WHILE ID expr..\n");
+    |   WHILE P1 ID operadores expr P2 {                        if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                }
+                                                                printf("CASO WHILE ID expr..\n");
                                                                 num_count = 0;
                                                                 if(passagem == 2) {
                                                                     if_part1(0, $3, $4, $5, "", 2, 1);
@@ -157,7 +178,12 @@ while:
 
                                     }
 
-    |   WHILE P1 expr operadores ID P2 {                        printf("CASO WHILE expr ID..\n");
+    |   WHILE P1 expr operadores ID P2 {                        if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $5, &expr, -1);
+                                                                }
+                                                                printf("CASO WHILE expr ID..\n");
                                                                 num_count = 0;
                                                                 if(passagem == 2) {
                                                                     if_part1($3, "", $4, 0, $5, 3, 1);
@@ -169,7 +195,13 @@ while:
 
                                     }
 
-    |   WHILE P1 ID operadores ID P2 {                          if(passagem == 2) {
+    |   WHILE P1 ID operadores ID P2 {                          if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                    insere_simbolo(&tabela_simbolos, $5, &expr, -1);
+                                                                }
+                                                                if(passagem == 2) {
                                                                     if_part1(0, $3, $4, 0, $5, 4, 1);
                                                                 }
                                                                 } CHV1 programa CHV2 {
@@ -274,6 +306,7 @@ expr_interna:
                                                 }
                                                 //printf("div: %d / %d\n", $1, $3);
                                                 }
+                                                
 
     |   NUMERO                      {           $$ = $1;
                                                 //char *reg = expr_nasm(' ', 0, $1);
@@ -474,22 +507,23 @@ int main(int argc, char *argv[]) {
     printf("===================== PASSAGEM 1\n");
     yyparse();
 
-    vars_nasm(tabela_simbolos);
-
-    passagem = 2;
-    fseek(yyin, 0, SEEK_SET);
-
-    printf("===================== PASSAGEM 2\n");
-    yyparse();
-
-
-    fprintf(temp, "%s\n", "\nmov eax, 1\nmov ebx, 0\nint 80h");
-    fclose(yyin);
-    fclose(temp);
-
     printList(tabela_simbolos);
 
+    vars_nasm(tabela_simbolos);
+
     if(erro_count == 0) {
+        passagem = 2;
+        fseek(yyin, 0, SEEK_SET);
+
+        printf("===================== PASSAGEM 2\n");
+        yyparse();
+
+
+        fprintf(temp, "%s\n", "\nmov eax, 1\nmov ebx, 0\nint 80h");
+        fclose(yyin);
+        fclose(temp);
+
+    
         char *nome = retorna_nome(retorna_nome(argv[1], 2), 1);    
         char ext[] = { ".asm" };
         FILE* nasm_saida = fopen(strcat(nome, ext), "w");
@@ -502,6 +536,8 @@ int main(int argc, char *argv[]) {
         fclose(nasm_saida);
         fclose(temp);
 
+        printRegs(lista_regs, 2);
+
     } else {
         negrito(1); cor_terminal(1, 1);
         printf("\nERRO::COMPILAÇÃO: %d Erros foram encontrados ....\n\n", erro_count);
@@ -511,8 +547,6 @@ int main(int argc, char *argv[]) {
     if(remove("temp") < 0) {
         printf("\nErro ao DELETAR temporario..\n\n");
     }
-
-    printRegs(lista_regs, 2);
 
     return 0;
 }

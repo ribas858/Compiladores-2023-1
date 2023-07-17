@@ -1,11 +1,4 @@
 int a = 2;
-int b = 2;
+int b;
 
-if ( 2 >= 2) {
-	int c = 1 + 1;
-}
-
-while (a > 2) {
-	int g = 2 + 3;
-	g = a;
-}
+b = 2;

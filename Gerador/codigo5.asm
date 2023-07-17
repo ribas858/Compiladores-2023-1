@@ -1,18 +1,16 @@
 section .data
 
-	id dd 1
+	a dd 2
 
 section .bss
 
-	var resd 1
+	b resd 1
 
 section .text
 	global _start
 
 _start:
-	mov eax, [id]
-mov [var], eax
-	cmp eax, [id]
+	mov dword [b], 2
 		
 mov eax, 1
 mov ebx, 0

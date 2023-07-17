@@ -89,7 +89,7 @@ union YYSTYPE
     int inteiro;
     char *string;
     char caracter;
-    void *generico;
+    void *gene;
 
 #line 95 "parser.tab.h"
 
