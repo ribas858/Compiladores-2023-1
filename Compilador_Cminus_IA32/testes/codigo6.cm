@@ -1,0 +1,8 @@
+int a = 100;
+int c = 5;
+int e = 1 + 1;
+int var = 1 + 1;
+int e2 = 1 + 1;
+int e1 = 1 + 1;
+int b = a * c;
+c = a / c;

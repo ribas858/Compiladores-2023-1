@@ -1,0 +1,8 @@
+int b = 1;
+int a = 2 + 3 + b;
+
+int c = a * (a - 1);
+
+while ( a < 10) {
+	a = a + 1;
+}
