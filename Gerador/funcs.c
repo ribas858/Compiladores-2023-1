@@ -8,7 +8,7 @@ bool vazia(char *str) {
 }
 
 bool igual(char *str1, char *str2) {
-    printf("str %s\n", str1);
+    //printf("str %s\n", str1);
     if( strlen(str1) != strlen(str2) ) {
         return false;
     }
@@ -98,7 +98,7 @@ bool insere_simbolo(struct tbs **lista, char *simbolo, generico *expr, int opr_e
                     // printf("AUX TIPO: %s\n", aux->tipo);
                     if(igual(expr->dado_tipo, aux->tipo)) {
                         // printf("Atualiza valor....\n");
-                        aux->valor = *(int *) expr->dado;
+                        // aux->valor = *(int *) expr->dado;
                         return true;
                     }
                 }
@@ -158,6 +158,10 @@ bool insere_simbolo(struct tbs **lista, char *simbolo, generico *expr, int opr_e
 }
 
 void printList(struct tbs *lista) {
+    if(!lista) {
+        printf("Tabela vazia...\n");
+        return;   
+    }
     printf("\n");
     while(lista) {
         printf("Simbolo: %s\n", lista->simbolo);
@@ -369,15 +373,28 @@ struct registrador * retorna_reg(struct registrador **lista, char *reg, int b, i
     return NULL;
 }
 
-struct registrador* retorna_valor_regs(struct registrador **lista, int valor) {
-    if(*lista) {
-        struct registrador *aux = malloc(sizeof(struct registrador));
-        aux = *lista;
-        while (aux) {
-            if(aux->valor == valor) {                                            // Retorna o registrador de acordo com o valor
-                return aux;
+struct registrador* retorna_var_regs(struct registrador **lista, char *var, int valor, int modo) {
+    if(modo == 1) {
+        if(*lista) {
+            struct registrador *aux = malloc(sizeof(struct registrador));
+            aux = *lista;
+            while (aux) {
+                if(igual(aux->var, var)) {                                            // Retorna o registrador de acordo com o valor
+                    return aux;
+                }
+                aux = aux-> prox;
             }
-            aux = aux-> prox;
+        }
+    } else if (modo == 2) {
+        if(*lista) {
+            struct registrador *aux = malloc(sizeof(struct registrador));
+            aux = *lista;
+            while (aux) {
+                if(igual(aux->var, var) && aux->valor == valor) {                                            // Retorna o registrador de acordo com o valor
+                    return aux;
+                }
+                aux = aux-> prox;
+            }
         }
     }
     return NULL;
@@ -398,15 +415,15 @@ void printRegs(struct registrador *lista, int modo) {
         while(lista) {
             if(lista->ocup == 1) {
                 if(!lista->prox) {
-                    cor_terminal(1, 1); printf("%s ]\n\n", lista->reg); cor_terminal(1, 0);    
+                    cor_terminal(1, 1); printf("%s(%s)%d ]\n\n", lista->reg, lista->var, lista->valor); cor_terminal(1, 0);    
                 } else {
-                    cor_terminal(1, 1); printf("%s, ", lista->reg); cor_terminal(1, 0);
+                    cor_terminal(1, 1); printf("%s(%s)%d, ", lista->reg, lista->var, lista->valor); cor_terminal(1, 0);
                 }
             } else {
                 if(!lista->prox) {
-                    cor_terminal(2, 1); printf("%s ]\n\n", lista->reg); cor_terminal(2, 0);
+                    cor_terminal(2, 1); printf("%s(%s)%d ]\n\n", lista->reg, lista->var, lista->valor); cor_terminal(2, 0);
                 } else {
-                    cor_terminal(2, 1); printf("%s, ", lista->reg); cor_terminal(2, 0);
+                    cor_terminal(2, 1); printf("%s(%s)%d, ", lista->reg, lista->var, lista->valor); cor_terminal(2, 0);
                 }
             }
             lista = lista->prox;
@@ -414,291 +431,636 @@ void printRegs(struct registrador *lista, int modo) {
     }
 }
 
-char* expr_nasm(char op, int a, int b) {
-    printf("CHAMOU EXPR NASM\n");
-    registrador *reg = retorna_reg(&lista_regs, "", b, 2);                      // Retorna para 'reg' um registrador livre ou ocupado(se for para leitura)
-                                                                                // OBS: Retornar um reg ocupado(para leitura), ja aproveita o valor do registrador
-                                                                                // sem precisar procurar um novo disponivel
-    
-    if(reg) {
-        if(op == '+') {
-            printf("\nMAIS: Retorno: %s ocup:%d\n", reg->reg, reg->ocup);
-            if(reg->valor == b) {                                               // Nesse caso o registrador ja tem um valor igual a um do operandos, ou seja, ele ja 
-                                                                                // esta ocupado e pode ser usado para leitua, mas nao podemos altera-lo
-                printf("Caso reaproveita registrador..(mais)\n");
-                registrador *reg_a = retorna_reg(&lista_regs, "", 0, 3);        // Retorna qualquer registrador livre
-                printf("%s + %s\n", reg_a->reg, reg->reg);
-                if(reg_a) {
-                    fprintf(temp, "%s", "mov ");                                //
-                    fprintf(temp, "%s, ", reg_a->reg);                          //
-                    fprintf(temp, "%d\n\t", a);                                 // mov reg_a, a
+char* expr_nasm(char op, struct expressao *a, struct expressao *b) {
+    printf("CHAMOU EXPR NASM id_expr:%s\n", id_expr);
+    int b_is_registrador = 0;
+    int original_ocupado;
+    int a_is_numero = 0;
+    int b_is_numero = 0;
+    registrador *reg_aux = NULL;
+    registrador *reg_a = NULL;
+    registrador *reg_b = NULL;
 
-                    fprintf(temp, "%s", "add ");                                //
-                    fprintf(temp, "%s, ", reg_a->reg);                          //
-                    fprintf(temp, "%s\n\t", reg->reg);                          // add reg_a, reg
+    if(vazia(a->id)) {
+        printf("A é um numero\n");
+        a_is_numero = 1;
+    }
 
-                    reg_a->valor = a + b;                                       // Salva valor
-                    reg_a->ocup = 1;                                            // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg_a->reg;
-                } else {
-                    // Todos os registradores ocupados
-                }
-            } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
-                printf("%s + %d\n", reg->reg, b);
-                printf("Caso normal...(mais)\n");
-                fprintf(temp, "%s", "mov ");                                    // 
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", a);                                       // mov reg, a
-
-                fprintf(temp, "%s", "add ");                                    //
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", b);                                       // add reg, b
-
-                reg->valor = a + b;                                             // Salva valor
-                reg->ocup = 1;                                                  // Ocupa o registrador
-                printRegs(lista_regs, 2);
-                fprintf(temp, "\n\t");
-                return reg->reg;
-            }
-            
-        }
-        else if (op == '-') {
-            printf("\nMENOS: Retorno: %s ocup:%d valor:%d b:%d\n", reg->reg, reg->ocup, reg->valor, b);
-
-            if(reg->valor == b) {                                               // Nesse caso o registrador ja tem um valor igual a um do operandos, ou seja, ele ja 
-                                                                                // esta ocupado e pode ser usado para leitua, mas nao podemos altera-lo
-                printf("Caso reaproveita registrador..(menos)\n");
-                registrador *reg_a = retorna_reg(&lista_regs, "", 0, 3);        // Retorna qualquer registrador livre
-                printf("%s - %s\n", reg_a->reg, reg->reg);
-                if(reg_a) {
-                    fprintf(temp, "%s", "mov ");                                //
-                    fprintf(temp, "%s, ", reg_a->reg);                          //
-                    fprintf(temp, "%d\n", a);                                   // mov reg_a, a
-
-                    fprintf(temp, "%s", "sub ");                                //
-                    fprintf(temp, "%s, ", reg_a->reg);                          //
-                    fprintf(temp, "%s\n\t", reg->reg);                            // sub reg_a, reg
-
-                    reg_a->valor = a - b;                                       // Salva valor
-                    reg_a->ocup = 1;                                            // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg_a->reg;
-                } else {
-                    // Todos os registradores ocupados
-                }
-            } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
-                printf("%s - %d\n", reg->reg, b);
-                printf("Caso normal...(menos)\n");
-                fprintf(temp, "%s", "mov ");                                    //
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", a);                                       // mov reg, a
-
-                fprintf(temp, "%s", "sub ");                                    //
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", b);                                       // sub reg, b
-
-                reg->valor = a - b;                                             // Salva valor
-                reg->ocup = 1;                                                  // Ocupa o registrador
-                printRegs(lista_regs, 2);
-                fprintf(temp, "\n\t");
-                return reg->reg;
-            }
-            
-        }
-
-        else if (op == '*') {
-            printf("\nMULT: Retorno: %s ocup:%d\n", reg->reg, reg->ocup);
-            
-            int original_ocup = reg->ocup;                                      // Salva o status de 'reg'
-            registrador *reg_eax;
-
-            if(!igual(reg->reg, "eax")) {                                       // Se o registrador for diferente de EAX
-                reg_eax = retorna_reg(&lista_regs, "eax", 0, 1);                // Buscamos EAX para 'reg_eax', estando ocupado ou nao
-            } else {                                                            
-                                                                                // Se o registrador for o EAX
-                reg_eax = reg;                                                  // Atribuimos ele para 'reg_eax'
-                if(original_ocup == 0) {                                        // Se originalmente o registrador encontrado estiver livre
-                    reg_eax->ocup = 1;                                          // Marcamos ele como ocupado, pois precisamos buscar um segundo
-                }                                                               // registrador, e ele nao pode ser selecionado novamente
-
-                reg = retorna_reg(&lista_regs, "", 0, 3);                       // Buscamos um novo registrador qualquer que esteja livre  
-
-                if (original_ocup == 0) {                                       // Se originalmente o 'reg_eax' estava livre
-                    reg_eax->ocup = 0;                                          // Marcamos ele novamente como livre, pois ele foi alterado apenas para buscar
-                }                                                               // um novo registrador
-            }
-            
-            printf("%s * %s\n", reg_eax->reg, reg->reg);
-            if(reg && reg_eax) {                                                // Se os dois registradores sao validos
-                
-                if(reg_eax->ocup == 1) {                                        // Se 'reg_eax' esta ocupado
-                        printf("Caso EAX ocupado...(mult)\n");
-                        fprintf(temp, "%s", "push eax\n\t");                      // Salvamos ele na pilha
-                } else {
-                    printf("Caso EAX normal...(mult)\n");
-                }
-
-                fprintf(temp, "%s", "mov ");                                    //
-                fprintf(temp, "%s, ", reg_eax->reg);                            //
-                fprintf(temp, "%d\n\t", a);                                       // mov reg_eax, a
-
-                fprintf(temp, "%s", "mov ");                                    //
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", b);                                       // mov reg, b
-                
-                fprintf(temp, "%s", "imul ");                                   //
-                fprintf(temp, "%s\n\t", reg->reg);                                // imul reg (reg_eax = reg_eax * reg)
-
-                if(reg_eax->ocup == 1) {                                        // Se 'reg_eax' esta ocupado, salvamos o resultado da mult no 'reg'
-                    fprintf(temp, "%s", "mov ");                                // para devolver o valor original de 'reg_eax'
-                    fprintf(temp, "%s, ", reg->reg);                            //
-                    fprintf(temp, "%s\n\t", reg_eax->reg);                        // mov reg, reg_eax
-
-                    fprintf(temp, "%s", "pop eax\n\t");                           // Desempilha o valor original de EAX
-
-                    reg->valor = a * b;                                         // Salva valor
-                    reg->ocup = 1;                                              // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg->reg;
-
-                } else {                                                        // Se 'reg_eax' esta livre, apenas o ocupamos
-                    reg_eax->valor = a * b;                                     // Salva valor
-                    reg_eax->ocup = 1;                                          // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg_eax->reg;
-                }
+    if(vazia(b->id)) {
+        b_is_numero = 1;
+        reg_aux = retorna_reg(&lista_regs, "", b->numero, 2);                           // Retorna para 'reg' um registrador livre ou ocupado(se for para leitura)
+                                                             // OBS: Retornar um reg ocupado(para leitura), ja aproveita o valor do registrador
+                                                                                    // sem precisar procurar um novo disponivel
+        if(reg_aux) {
+            if(reg_aux->ocup == 0) {
+                original_ocupado = reg_aux->ocup;
+                reg_aux->ocup = 1;
             } else {
-                if(!reg) {
-                    // Todos os registradores ocupados
-                }
+                b_is_registrador = 1;
+                original_ocupado = 1;
             }
-            
-        }
-        else if (op == '/') {
-            // eax = eax * b
-            printf("\nDIV: Retorno: %s ocup:%d\n", reg->reg, reg->ocup);
-
-            registrador *reg_edx = NULL;
-            int ocup_edx = 0;
-            if(igual(reg->reg, "edx")) {                                        // Se o registrador for igual a EDX
-                if(reg->ocup == 1 ){                                            // Se edx esta ocupado
-                    ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
-                    fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
-                } else {
-                    reg->ocup = 1;                                              // Se originalmente ele estava livre, marcamos ele como ocupado
-                }                                                               // para evitar seleciona-lo na busca por outro registrador
-                fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
-                                                                                // para evitar erros na operacao idiv
-                reg_edx = reg;                                                  // Se o registrador encontrado for o EDX, atribuimos a 'reg_edx'
-                reg = retorna_reg(&lista_regs, "", b, 2);                       // E entao buscamos um novo registrador para 'reg'
-            
-            } else {
-                reg_edx = retorna_reg(&lista_regs, "edx", 0, 1);                // Se o registrador encontrado nao for o EDX, buscamos ele especificamente
-                if(reg_edx->ocup == 1 ){                                        // Se edx esta ocupado     
-                    ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
-                    fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
-                } else {
-                    reg_edx->ocup = 1;                                          // Se originalmente ele estava livre, marcamos ele como ocupado
-                }                                                               // para evitar seleciona-lo na busca por outro registrador
-
-                fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
-                                                                                // para evitar erros na operacao idiv            
-            }
-
-            
-            int original_ocup = reg->ocup;                                      // Salva o status de 'reg'
-
-            registrador *reg_eax;
-
-            if(!igual(reg->reg, "eax")) {                                       // Se o registrador for diferente de EAX
-                reg_eax = retorna_reg(&lista_regs, "eax", 0, 1);                // Buscamos EAX para 'reg_eax', estando ocupado ou nao
-            } else {
-                                                                                // Se o registrador for o EAX
-                reg_eax = reg;                                                  // Atribuimos ele para 'reg_eax'
-                if(original_ocup == 0) {                                        // Se originalmente o registrador encontrado estiver livre
-                    reg_eax->ocup = 1;                                          // Marcamos ele como ocupado, pois precisamos buscar um segundo
-                }                                                               // registrador, e ele nao pode ser selecionado novamente
-
-                reg = retorna_reg(&lista_regs, "", 0, 3);                       // Buscamos um novo registrador qualquer que esteja livre        
-
-                if (original_ocup == 0) {                                       // Se originalmente o 'reg_eax' estava livre
-                    reg_eax->ocup = 0;                                          // Marcamos ele novamente como livre, pois ele foi alterado apenas para buscar
-                }                                                               // um novo registrador   
-            }
-            
-            printf("%s / %s\n", reg_eax->reg, reg->reg);
-            if(reg && reg_eax) {                                                // Se os dois registradores sao validos
-                
-                if(reg_eax->ocup == 1) {                                        // Se 'reg_eax' esta ocupado
-                        printf("Caso EAX ocupado...(DIV)\n");
-                        fprintf(temp, "%s", "push eax\n\t");                      // Salvamos ele na pilha
-                } else {
-                    printf("Caso EAX normal...(DIV)\n");
-                }
-
-                fprintf(temp, "%s", "mov ");                                    //
-                fprintf(temp, "%s, ", reg_eax->reg);                            //
-                fprintf(temp, "%d\n\t", a);                                       // mov reg_eax, a
-
-                fprintf(temp, "%s", "mov ");                                    //
-                fprintf(temp, "%s, ", reg->reg);                                //
-                fprintf(temp, "%d\n\t", b);                                       // mov reg, b
-                
-                fprintf(temp, "%s", "idiv ");                                   //
-                fprintf(temp, "%s\n\t", reg->reg);                                // idiv reg (reg_eax = reg_eax / reg)
-
-                if(reg_eax->ocup == 1) {                                        // Se 'reg_eax' esta ocupado, salvamos o resultado da idiv no 'reg'
-                    fprintf(temp, "%s", "mov ");                                // para devolver o valor original de 'reg_eax'
-                    fprintf(temp, "%s, ", reg->reg);                            //
-                    fprintf(temp, "%s\n\t", reg_eax->reg);                        // mov reg, reg_eax
-
-                    fprintf(temp, "%s", "pop eax\n\t");                           // Desempilha o valor original de EAX
-
-                    reg->valor = a / b;                                         // Salva o valor
-                    reg->ocup = 1;                                              // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg->reg;
-
-                } else {                                                        // Se 'reg_eax' esta livre, apenas o ocupamos
-                    reg_eax->valor = a / b;                                     // Salva o valor 
-                    reg_eax->ocup = 1;                                          // Ocupa o registrador
-                    printRegs(lista_regs, 2);
-                    fprintf(temp, "\n\t");
-                    return reg_eax->reg;
-                }
-            } else {
-                if(!reg) {
-                    // Todos os registradores ocupados
-                }
-            }
-
-            if(ocup_edx == 0) {                                             // Se 'reg_edx' originalmente estava livre
-                reg_edx->ocup = 0;                                          // Marcamos ele como livre
-            } else {                                                        // Se ele estava ocupado
-                fprintf(temp, "%s", "pop edx\n\t");                           // Devolvemos o seu valor original
-            }
-
-            
-        }
-        else if (op == ' ') {
-
+        } else {
+            printf("REGISTRADOR NAO ENCONTRADO\n");
         }
     } else {
-        // Todos os registradores ocupados
+        reg_aux = retorna_reg(&lista_regs, "", 0, 3);        
     }
+    
+    if(reg_aux) {
+        if(op == '+' || op == '-') {
+            if(op == '+') {
+                printf("\nMAIS: Retorno: %s ocup:%d\n", reg_aux->reg, reg_aux->ocup);
+            } else {
+                printf("\nMENOS: Retorno: %s ocup:%d\n", reg_aux->reg, reg_aux->ocup);
+            }
+
+            if(b_is_registrador == 1) {                                        // Se B é um registrador
+                
+                reg_a = retorna_reg(&lista_regs, "", 0, 3);                     // Retorna qualquer registrador livre
+                reg_b = reg_aux;
+
+                if(original_ocupado == 0) {
+                    reg_b->ocup = 0;
+                }
+
+                if(op == '+') {
+                    printf("Caso reaproveita registrador..(mais) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                } else {
+                    printf("Caso reaproveita registrador..(menos) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                }
+                
+                if(reg_a) {
+                    if(a_is_numero == 1) {
+                        registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, a->numero, 2);
+                        printf("------------------ reg_var:%s\n", reg_var->reg);
+                        if(reg_var) {
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                 // mov reg_a, a    
+                        } else {
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%d\n\t", a->numero);                                 // mov reg_a, a
+                        }
+
+                        if(op == '+') {
+                            fprintf(temp, "%s", "add ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+                        } else {
+                            fprintf(temp, "%s", "sub ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+                        }
+                    } else {
+
+                        fprintf(temp, "%s", "mov ");                                //
+                        fprintf(temp, "%s, ", reg_a->reg);                          //
+                        fprintf(temp, "[%s]\n\t", a->id);                                 // mov reg_a, a
+
+                        if(op == '+') { 
+                            fprintf(temp, "%s", "add ");                             //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+                        } else {
+                            fprintf(temp, "%s", "sub ");                             //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+                        }
+                    }
+                
+                    if(op == '+') { 
+                        reg_a->valor = a->numero + b->numero;                                       // Salva valor
+                    } else {
+                        reg_a->valor = a->numero - b->numero;                                       // Salva valor
+                    }
+                    reg_a->ocup = 1;                                            // Ocupa o registrador
+                    strcpy(reg_a->var, id_expr);
+                    
+                    printRegs(lista_regs, 2);
+                    fprintf(temp, "\n\t");
+                    return reg_a->reg;
+                    
+                } else {
+                    // Todos os registradores ocupados
+                }
+            } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
+                reg_a = reg_aux;
+                if(op == '+') { 
+                    printf("%s + %d\n", reg_a->reg, b->numero);
+                    printf("Caso normal...(mais)  REG(%s)\n", reg_a->reg);
+                } else {
+                    printf("%s - %d\n", reg_a->reg, b->numero);
+                    printf("Caso normal...(menos)  REG(%s)\n", reg_a->reg);
+                }
+
+                if(a_is_numero == 1) {
+                    registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, a->numero, 2);
+                    
+                    if(reg_var) {
+                        printf("------------------ reg_var:%s\n", reg_var->reg);
+                        fprintf(temp, "%s", "mov ");                                //
+                        fprintf(temp, "%s, ", reg_a->reg);                          //
+                        fprintf(temp, "%s\n\t", reg_var->reg);                                 // mov reg_a, a    
+                    } else {
+                        fprintf(temp, "%s", "mov ");                                //
+                        fprintf(temp, "%s, ", reg_a->reg);                          //
+                        fprintf(temp, "%d\n\t", a->numero);                                 // mov reg_a, a
+                    }
+                } else {
+                    fprintf(temp, "%s", "mov ");                                    // 
+                    fprintf(temp, "%s, ", reg_a->reg);                                //
+                    fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+                }
+
+                if(b_is_numero == 1) {
+                    registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, b->numero, 2);
+
+                    if(op == '+') { 
+                        if(reg_var) {
+                            fprintf(temp, "%s", "add ");                                    //
+                            fprintf(temp, "%s, ", reg_a->reg);                                //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                       // add reg, b
+                        } else {
+                            fprintf(temp, "%s", "add ");                                    //
+                            fprintf(temp, "%s, ", reg_a->reg);                                //
+                            fprintf(temp, "%d\n\t", b->numero);                                       // add reg, b
+                        }
+                    } else {
+                        if(reg_var) {
+                            fprintf(temp, "%s", "sub ");                                    //
+                            fprintf(temp, "%s, ", reg_a->reg);                                //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                       // sub reg, b
+                        } else {
+                            fprintf(temp, "%s", "sub ");                                    //
+                            fprintf(temp, "%s, ", reg_a->reg);                                //
+                            fprintf(temp, "%d\n\t", b->numero);                                       // sub reg, b
+                        }
+                    }
+                } else {
+                    if(op == '+') { 
+                        fprintf(temp, "%s", "add ");                                    //
+                        fprintf(temp, "%s, ", reg_a->reg);                                //
+                        fprintf(temp, "[%s]\n\t", b->id);                                       // add reg, b
+                    } else {
+                        fprintf(temp, "%s", "sub ");                                    //
+                        fprintf(temp, "%s, ", reg_a->reg);                                //
+                        fprintf(temp, "[%s]\n\t", b->id);                                       // sub reg, b
+                    }
+                }
+
+                if(op == '+') {
+                    reg_a->valor = a->numero + b->numero;                                             // Salva valor
+                } else {
+                    reg_a->valor = a->numero - b->numero;                                             // Salva valor
+                }
+                reg_a->ocup = 1;                                                // Ocupa o registrador
+                strcpy(reg_a->var, id_expr);
+                printRegs(lista_regs, 2);
+                fprintf(temp, "\n\t");
+                return reg_a->reg;
+            }
+        } //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // else if(op == '-') {
+        //     printf("\nMENOS: Retorno: %s ocup:%d\n", reg_aux->reg, reg_aux->ocup);
+
+        //     if(b_is_registrador == 1) {                                        // Se B é um registrador
+                
+        //         reg_a = retorna_reg(&lista_regs, "", 0, 3);                     // Retorna qualquer registrador livre
+        //         reg_b = reg_aux;
+
+        //         if(original_ocupado == 0) {
+        //             reg_b->ocup = 0;
+        //         }
+
+        //         printf("Caso reaproveita registrador..(menos) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                
+        //         if(reg_a) {
+        //             if(a_is_numero == 1) {
+        //                 fprintf(temp, "%s", "mov ");                                //
+        //                 fprintf(temp, "%s, ", reg_a->reg);                          //
+        //                 fprintf(temp, "%d\n\t", a->numero);                                 // mov reg_a, a
+
+
+        //                 fprintf(temp, "%s", "sub ");                                //
+        //                 fprintf(temp, "%s, ", reg_a->reg);                          //
+        //                 fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+        //             } else {
+
+        //                 fprintf(temp, "%s", "mov ");                                //
+        //                 fprintf(temp, "%s, ", reg_a->reg);                          //
+        //                 fprintf(temp, "[%s]\n\t", a->id);                                 // mov reg_a, a
+
+        //                 fprintf(temp, "%s", "sub ");                             //
+        //                 fprintf(temp, "%s, ", reg_a->reg);                          //
+        //                 fprintf(temp, "%s\n\t", reg_b->reg);                          // add reg_a, reg
+        //             }
+                
+        //             reg_a->valor = a->numero - b->numero;                                       // Salva valor
+        //             reg_a->ocup = 1;                                            // Ocupa o registrador
+                    
+        //             printRegs(lista_regs, 2);
+        //             fprintf(temp, "\n\t");
+        //             return reg_a->reg;
+                    
+        //         } else {
+        //             // Todos os registradores ocupados
+        //         }
+        //     } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
+        //         reg_a = reg_aux;
+        //         printf("%s - %d\n", reg_a->reg, b->numero);
+        //         printf("Caso normal...(menos)  REG(%s)\n", reg_a->reg);
+        //         if(a_is_numero == 1) {
+        //             fprintf(temp, "%s", "mov ");                                    // 
+        //             fprintf(temp, "%s, ", reg_a->reg);                                //
+        //             fprintf(temp, "%d\n\t", a->numero);                                       // mov reg, a
+        //         } else {
+        //             fprintf(temp, "%s", "mov ");                                    // 
+        //             fprintf(temp, "%s, ", reg_a->reg);                                //
+        //             fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+        //         }
+
+        //         if(b_is_numero == 1) {
+        //             fprintf(temp, "%s", "sub ");                                    //
+        //             fprintf(temp, "%s, ", reg_a->reg);                                //
+        //             fprintf(temp, "%d\n\t", b->numero);                                       // add reg, b
+        //         } else {
+        //             fprintf(temp, "%s", "sub ");                                    //
+        //             fprintf(temp, "%s, ", reg_a->reg);                                //
+        //             fprintf(temp, "[%s]\n\t", b->id);                                       // add reg, b
+        //         }
+
+        //         reg_a->valor = a->numero - b->numero;                                             // Salva valor
+        //         reg_a->ocup = 1;                                                  // Ocupa o registrador
+        //         printRegs(lista_regs, 2);
+        //         fprintf(temp, "\n\t");
+        //         return reg_a->reg;
+        //     }
+        // } //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        else if(op == '*' || op == '/') {
+            registrador *reg_edx = NULL;
+            int ocup_edx = 0;
+
+            if(op == '*') {
+                printf("\nMULT: Retorno: %s ocup:%d || a(%d) b(%d)\n", reg_aux->reg, reg_aux->ocup, a->numero, b->numero);
+            } else {
+                printf("\nDIV: Retorno: %s ocup:%d || a(%d) b(%d)\n", reg_aux->reg, reg_aux->ocup, a->numero, b->numero);
+                
+                if(igual(reg_aux->reg, "edx")) {                                        // Se o registrador for igual a EDX
+                    if(reg_aux->ocup == 1 ){                                            // Se edx esta ocupado
+                        ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
+                        fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
+                    } else {
+                        reg_aux->ocup = 1;                                              // Se originalmente ele estava livre, marcamos ele como ocupado
+                    }                                                               // para evitar seleciona-lo na busca por outro registrador
+                    fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
+                                                                                    // para evitar erros na operacao idiv
+                    reg_edx = reg_edx;                                                  // Se o registrador encontrado for o EDX, atribuimos a 'reg_edx'
+                    reg_aux = retorna_reg(&lista_regs, "", b->numero, 2);                       // E entao buscamos um novo registrador para 'reg'
+                
+                } else {
+                    reg_edx = retorna_reg(&lista_regs, "edx", 0, 1);                // Se o registrador encontrado nao for o EDX, buscamos ele especificamente
+                    if(reg_edx->ocup == 1 ){                                        // Se edx esta ocupado     
+                        ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
+                        fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
+                    } else {
+                        reg_edx->ocup = 1;                                          // Se originalmente ele estava livre, marcamos ele como ocupado
+                    }                                                               // para evitar seleciona-lo na busca por outro registrador
+
+                    fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
+                                                                                    // para evitar erros na operacao idiv            
+                }
+
+            }
+
+            if(!igual(reg_aux->reg, "eax")) {
+                reg_b = reg_aux;
+
+                reg_a = retorna_reg(&lista_regs, "eax", 0, 1);
+                
+                if(reg_a->ocup == 1) {
+                    fprintf(temp, "%s", "push ");
+                    fprintf(temp, "%s\n", reg_a->reg);
+                }
+            } else {
+                printf("EAX DE CARA\n");
+                reg_a = reg_aux;
+                printf(" ============ %d\n", reg_a->ocup);
+                reg_a->ocup = 1;
+                reg_b = retorna_reg(&lista_regs, "", 0, 3);
+                reg_a->ocup = 0;
+
+                if(original_ocupado == 0) {
+                    reg_a->ocup = 0;
+                }
+            }
+
+            if(b_is_registrador == 1 && reg_a->ocup == 0) {
+
+                if(op == '*') {
+                    printf("Caso reaproveita registrador..(mult) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                } else {
+                    printf("Caso reaproveita registrador..(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                }
+                
+                if (reg_a && reg_b) {
+                    if(op == '*') {
+                        printf("%s * %d\n", reg_a->reg, b->numero);
+                        printf("Caso normal...(mult) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                    } else {
+                        printf("%s / %d\n", reg_a->reg, b->numero);
+                        printf("Caso normal...(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                    }
+
+                    if(a_is_numero == 1) {
+                        registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, a->numero, 2);
+                        if(reg_var) {
+                            printf("------------------ reg_var:%s\n", reg_var->reg);
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                 // mov reg_a, a    
+                        } else {
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%d\n\t", a->numero);                                 // mov reg_a, a
+                        }
+                    } else {
+                        fprintf(temp, "%s", "mov ");                                    // 
+                        fprintf(temp, "%s, ", reg_a->reg);                                //
+                        fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+                    }
+
+                    if(op == '*') {
+                        fprintf(temp, "%s", "imul ");                                    //
+                        fprintf(temp, "%s\n", reg_b->reg);                                //
+                        reg_a->valor = a->numero * b->numero;                                             // Salva valor
+                    } else {
+                        fprintf(temp, "%s", "idiv ");                                    //
+                        fprintf(temp, "%s\n", reg_b->reg);                                //
+                        reg_a->valor = a->numero / b->numero;                                             // Salva valor
+                    }
+
+                    printf("REgistrador valor: %d\n", reg_a->valor);
+                    reg_a->ocup = 1;                                                  // Ocupa o registrador
+                    strcpy(reg_a->var, id_expr);
+                    printRegs(lista_regs, 2);
+                    fprintf(temp, "\n\t");
+                    return reg_a->reg;
+                }
+
+            } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
+                
+                if (reg_a && reg_b) {
+                    if(op == '*') {
+                        printf("%s * %d\n", reg_a->reg, b->numero);
+                        printf("Caso normal...(mult) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                    } else {
+                        printf("%s / %d\n", reg_a->reg, b->numero);
+                        printf("Caso normal...(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                    }
+
+                    if(a_is_numero == 1) {
+                        registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, a->numero, 2);
+                        if(reg_var) {
+                            printf("------------------ reg_var:%s\n", reg_var->reg);
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                 // mov reg_a, a    
+                        } else {
+                            fprintf(temp, "%s", "mov ");                                //
+                            fprintf(temp, "%s, ", reg_a->reg);                          //
+                            fprintf(temp, "%d\n\t", a->numero);                                 // mov reg_a, a
+                        }
+                    } else {
+                        fprintf(temp, "%s", "mov ");                                    // 
+                        fprintf(temp, "%s, ", reg_a->reg);                                //
+                        fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+                    }
+
+                    if(b_is_numero == 1) {
+                        registrador *reg_var = retorna_var_regs(&lista_regs, id_expr, b->numero, 2);
+                        if (reg_var) {
+                            fprintf(temp, "%s", "mov ");                                    // 
+                            fprintf(temp, "%s, ", reg_b->reg);                                //
+                            fprintf(temp, "%s\n\t", reg_var->reg);                                       // mov reg, a
+                        } else {
+                            fprintf(temp, "%s", "mov ");                                    // 
+                            fprintf(temp, "%s, ", reg_b->reg);                                //
+                            fprintf(temp, "%d\n\t", b->numero);                                       // mov reg, a
+                        }
+
+                        if(op == '*') {
+                            fprintf(temp, "%s", "imul ");                                    //
+                            fprintf(temp, "%s\n", reg_b->reg);                                //
+                        } else {
+                            fprintf(temp, "%s", "idiv ");                                    //
+                            fprintf(temp, "%s\n", reg_b->reg);                                //
+                        }
+                        
+                        fprintf(temp, "%s", "mov ");                                    // 
+                        fprintf(temp, "%s, ", reg_b->reg);                                //
+                        fprintf(temp, "%s\n\t", reg_a->reg);                                       // mov reg, a
+                    } else {
+
+                        fprintf(temp, "%s", "mov ");                                    // 
+                        fprintf(temp, "%s, ", reg_b->reg);                                //
+                        fprintf(temp, "[%s]\n\t", b->id);                                       // mov reg, a
+
+                        if(op == '*') {
+                            fprintf(temp, "%s", "imul ");                                    //
+                            fprintf(temp, "%s\n", reg_b->reg);                                //
+                        } else {
+                            fprintf(temp, "%s", "idiv ");                                    //
+                            fprintf(temp, "%s\n", reg_b->reg);                                //
+                        }
+                        
+                        fprintf(temp, "%s", "mov ");                                    // 
+                        fprintf(temp, "%s, ", reg_b->reg);                                //
+                        fprintf(temp, "%s\n\t", reg_a->reg);                                       // mov reg, a
+                    }
+
+                    if(reg_a->ocup == 1) {
+                        fprintf(temp, "%s", "pop ");
+                        fprintf(temp, "%s\n", reg_a->reg);
+                    }
+
+                    if(op == '*') {
+                        reg_b->valor = a->numero * b->numero;                                             // Salva valor
+                    } else {
+                        if(ocup_edx == 0) {                                             // Se 'reg_edx' originalmente estava livre
+                            reg_edx->ocup = 0;                                          // Marcamos ele como livre
+                        } else {                                                        // Se ele estava ocupado
+                            fprintf(temp, "%s", "pop edx\n\t");                           // Devolvemos o seu valor original
+                        }
+                        reg_b->valor = a->numero / b->numero;                                             // Salva valor
+                    }
+
+                    printf("REgistrador valor: %d %s\n", reg_b->valor, id_expr);
+                    reg_b->ocup = 1;                                                  // Ocupa o registrador
+                    strcpy(reg_b->var, id_expr);
+                    printRegs(lista_regs, 2);
+                    fprintf(temp, "\n\t");
+                    return reg_b->reg;
+                }
+            }
+        } //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // else if (op == '/') {
+        //     printf("\nDIV: Retorno: %s ocup:%d || a(%d) b(%d)\n", reg_aux->reg, reg_aux->ocup, a->numero, b->numero);
+
+        //     registrador *reg_edx = NULL;
+        //     int ocup_edx = 0;
+        //     if(igual(reg_aux->reg, "edx")) {                                        // Se o registrador for igual a EDX
+        //         if(reg_aux->ocup == 1 ){                                            // Se edx esta ocupado
+        //             ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
+        //             fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
+        //         } else {
+        //             reg_aux->ocup = 1;                                              // Se originalmente ele estava livre, marcamos ele como ocupado
+        //         }                                                               // para evitar seleciona-lo na busca por outro registrador
+        //         fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
+        //                                                                         // para evitar erros na operacao idiv
+        //         reg_edx = reg_edx;                                                  // Se o registrador encontrado for o EDX, atribuimos a 'reg_edx'
+        //         reg_aux = retorna_reg(&lista_regs, "", b, 2);                       // E entao buscamos um novo registrador para 'reg'
+            
+        //     } else {
+        //         reg_edx = retorna_reg(&lista_regs, "edx", 0, 1);                // Se o registrador encontrado nao for o EDX, buscamos ele especificamente
+        //         if(reg_edx->ocup == 1 ){                                        // Se edx esta ocupado     
+        //             ocup_edx = 1;                                               // Marcamos ele como ocupado originalmente
+        //             fprintf(temp, "%s", "push edx\n\t");                          // Salvamos ele na pilha
+        //         } else {
+        //             reg_edx->ocup = 1;                                          // Se originalmente ele estava livre, marcamos ele como ocupado
+        //         }                                                               // para evitar seleciona-lo na busca por outro registrador
+
+        //         fprintf(temp, "%s", "sub edx, edx\n\t");                          // Ocupado ou nao, ele foi salvo na pilha. Entao zeramos EDX
+        //                                                                         // para evitar erros na operacao idiv            
+        //     }
+
+            
+
+        //     if(!igual(reg_aux->reg, "eax")) {
+        //         reg_b = reg_aux;
+
+        //         reg_a = retorna_reg(&lista_regs, "eax", 0, 1);
+                
+        //         if(reg_a->ocup == 1) {
+        //             fprintf(temp, "%s", "push ");
+        //             fprintf(temp, "%s\n", reg_a->reg);
+        //         }
+        //     } else {
+        //         printf("EAX DE CARA\n");
+        //         reg_a = reg_aux;
+        //         // printf(" ============ %d\n", reg_a->ocup);
+        //         reg_b = retorna_reg(&lista_regs, "", 0, 3);
+
+        //         if(original_ocupado == 0) {
+        //             reg_a->ocup = 0;
+        //         }
+        //     }
+
+        //     if(b_is_registrador == 1 && reg_a->ocup == 0) {
+
+        //         printf("Caso reaproveita registrador..(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+                
+        //         if (reg_a && reg_b) {
+        //             printf("%s * %d\n", reg_a->reg, b->numero);
+        //             printf("Caso normal...(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+        //             if(a_is_numero == 1) {
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_a->reg);                                //
+        //                 fprintf(temp, "%d\n\t", a->numero);                                       // mov reg, a
+        //             } else {
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_a->reg);                                //
+        //                 fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+        //             }
+
+        //             fprintf(temp, "%s", "idiv ");                                    //
+        //             fprintf(temp, "%s\n", reg_b->reg);                                //
+
+        //             reg_a->valor = a->numero * b->numero;                                             // Salva valor
+        //             printf("REgistrador valor: %d\n", reg_a->valor);
+        //             reg_a->ocup = 1;                                                  // Ocupa o registrador
+        //             printRegs(lista_regs, 2);
+        //             fprintf(temp, "\n\t");
+        //             return reg_a->reg;
+        //         }
+
+        //     } else {                                                            // Caso onde não temos um registrador pra aproveitar, ocuparemos um novo
+                
+        //         if (reg_a && reg_b) {
+        //             printf("%s * %d\n", reg_a->reg, b->numero);
+        //             printf("Caso normal...(div) REG_A(%s) REG_B(%s)\n", reg_a->reg, reg_b->reg);
+        //             if(a_is_numero == 1) {
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_a->reg);                                //
+        //                 fprintf(temp, "%d\n\t", a->numero);                                       // mov reg, a
+        //             } else {
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_a->reg);                                //
+        //                 fprintf(temp, "[%s]\n\t", a->id);                                       // mov reg, a
+        //             }
+
+        //             if(b_is_numero == 1) {
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_b->reg);                                //
+        //                 fprintf(temp, "%d\n\t", b->numero);                                       // mov reg, a
+
+        //                 fprintf(temp, "%s", "idiv ");                                    //
+        //                 fprintf(temp, "%s\n", reg_b->reg);                                //
+                        
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_b->reg);                                //
+        //                 fprintf(temp, "%s\n\t", reg_a->reg);                                       // mov reg, a
+        //             } else {
+
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_b->reg);                                //
+        //                 fprintf(temp, "[%s]\n\t", b->id);                                       // mov reg, a
+
+        //                 fprintf(temp, "%s", "idiv ");                                    //
+        //                 fprintf(temp, "%s\n", reg_b->reg);                                //
+                        
+        //                 fprintf(temp, "%s", "mov ");                                    // 
+        //                 fprintf(temp, "%s, ", reg_b->reg);                                //
+        //                 fprintf(temp, "%s\n\t", reg_a->reg);                                       // mov reg, a
+        //             }
+
+        //             if(reg_a->ocup == 1) {
+        //                 fprintf(temp, "%s", "pop ");
+        //                 fprintf(temp, "%s\n", reg_a->reg);
+        //             }
+
+        //             reg_b->valor = a->numero * b->numero;                                             // Salva valor
+        //             printf("REgistrador valor: %d\n", reg_b->valor);
+        //             reg_b->ocup = 1;                                                  // Ocupa o registrador
+        //             printRegs(lista_regs, 2);
+        //             fprintf(temp, "\n\t");
+        //             return reg_b->reg;
+        //         }
+        //     }
+            
+
+        //     if(ocup_edx == 0) {                                             // Se 'reg_edx' originalmente estava livre
+        //         reg_edx->ocup = 0;                                          // Marcamos ele como livre
+        //     } else {                                                        // Se ele estava ocupado
+        //         fprintf(temp, "%s", "pop edx\n\t");                           // Devolvemos o seu valor original
+        //     }
+
+            
+        // }
+
+    } //else {
+    //     // Todos os registradores ocupados
+    // }
     return "";
 }
 
 void vars_nasm(struct tbs *lista) {
     int bss = 0;
     struct tbs *aux = lista;
-
+    fprintf(temp, "%s\n\n", "%include \"io.mac\"");
     fprintf(temp, "%s\n\n\t", "section .data");
     while(lista) {
         if(lista->opr_expr == 1) {
@@ -735,14 +1097,22 @@ void vars_nasm(struct tbs *lista) {
 }
 
 
-struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, int modo, int enquanto) {
+struct labels* while_if_nasm(char* operador,  struct expressao *a_expr, struct expressao *b_expr, char *cond) {
+    printf(">>>>>>>>>>> ENTROU WHILE_IF\n");
     
+    int a = a_expr->numero;
+    int b = b_expr->numero;
+    char *as = a_expr->id;
+    char *bs = b_expr->id;
+    printf("a(%d) b(%d) as(%s) bs(%s)\n", a, b, as, bs);
+
+    
+
     struct labels *ret_labs = malloc(sizeof(labels));
     char if_str[3] = { "if" };
     char while_str[6] = { "while" };
     char loop_str[4] = { "fim" };
 
-    printf("%s %d %d\n", operador, a, b);
 
     struct registrador *reg = retorna_reg(&lista_regs, "", 0, 2);
 
@@ -757,8 +1127,8 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
     strcpy(ret_labs->reg_usado, reg->reg);
     
     char buffer0[10];
-    if( enquanto == 1) {
-        sprintf(buffer0, "%d", ifs);
+    if( igual(cond, "while")) {
+        sprintf(buffer0, "%d", condicionais_count);
         
         strcat(while_str, buffer0);
         strcat(while_str, ":");
@@ -772,41 +1142,27 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
         
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
         fprintf(temp, "%s", "jne ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -824,40 +1180,26 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
         fprintf(temp, "%s", "je ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -875,40 +1217,26 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
         fprintf(temp, "%s", "jnge ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -926,40 +1254,26 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
-        fprintf(temp, "%s", "jge ");
+        fprintf(temp, "%s", "jg ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -977,40 +1291,26 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
-        fprintf(temp, "%s", "jl ");
+        fprintf(temp, "%s", "jle ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -1029,40 +1329,26 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         
         fprintf(temp, "%s", "mov ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(as)) {
             fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "[%s]\n\t\t", as);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "%d\n\t\t", a);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", as);
         }
 
         fprintf(temp, "%s", "cmp ");
         fprintf(temp, "%s, ", reg->reg);
-        if(modo == 1) {
+        if(vazia(bs)) {
             fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 2) {
-            fprintf(temp, "%d\n\t\t", b);
-        }
-        else if (modo == 3) {
-            fprintf(temp, "[%s]\n\t\t", bs);
-        }
-        else if (modo == 4) {
+        } else {
             fprintf(temp, "[%s]\n\t\t", bs);
         }
         
         char buffer[10];
-        sprintf(buffer, "%d", ifs);
+        sprintf(buffer, "%d", condicionais_count);
 
-        fprintf(temp, "%s", "jg ");
+        fprintf(temp, "%s", "jge ");
         
-        if (enquanto == 1 ) {
+        if (igual(cond, "while") ) {
             strcat(loop_str, buffer);
             printf("%s\n", loop_str);
             
@@ -1079,45 +1365,45 @@ struct labels* while_if_nasm(char* operador, int a, int b, char* as, char* bs, i
         printf("l1 %s l2 %s\n", ret_labs->lab1, ret_labs->lab2);
     }
  
-    ifs++;
+    condicionais_count++;
     return ret_labs;
     
 }
 
-void if_part1(int tres, char* tres_str, char* quatro_str, int cinco, char* cinco_str, int modo, int enquanto) {
-    if(modo == 1) {
-        rotulo = while_if_nasm(quatro_str, tres, cinco, "", "", modo, enquanto);
-        strcpy(rot1, rotulo->lab1);
-        strcpy(rot2, rotulo->lab2);
-        strcpy(ret_reg_usado, rotulo->reg_usado);
-        origin_oc = rotulo->origin_ocup;
-    }
-    else if(modo == 2) {
-        rotulo = while_if_nasm(quatro_str, 0, cinco, tres_str, "", modo, enquanto);
-        strcpy(rot1, rotulo->lab1);
-        strcpy(rot2, rotulo->lab2);
-        strcpy(ret_reg_usado, rotulo->reg_usado);
-        origin_oc = rotulo->origin_ocup;
-    }
-    else if(modo == 3) {
-        rotulo = while_if_nasm(quatro_str, tres, 0, "", cinco_str, modo, enquanto);
-        strcpy(rot1, rotulo->lab1);
-        strcpy(rot2, rotulo->lab2);
-        strcpy(ret_reg_usado, rotulo->reg_usado);
-        origin_oc = rotulo->origin_ocup;
-    }
-    else if(modo == 4) {
-        rotulo = while_if_nasm(quatro_str, 0, 0, tres_str, cinco_str, modo, enquanto);
-        strcpy(rot1, rotulo->lab1);
-        strcpy(rot2, rotulo->lab2);
-        strcpy(ret_reg_usado, rotulo->reg_usado);
-        origin_oc = rotulo->origin_ocup;
-    }
+// void if_part1(int tres, char* tres_str, char* quatro_str, int cinco, char* cinco_str, int modo, int enquanto) {
+//     if(modo == 1) {
+//         rotulo = while_if_nasm(quatro_str, tres, cinco, "", "", modo, enquanto);
+//         strcpy(rot1, rotulo->lab1);
+//         strcpy(rot2, rotulo->lab2);
+//         strcpy(ret_reg_usado, rotulo->reg_usado);
+//         origin_oc = rotulo->origin_ocup;
+//     }
+//     else if(modo == 2) {
+//         rotulo = while_if_nasm(quatro_str, 0, cinco, tres_str, "", modo, enquanto);
+//         strcpy(rot1, rotulo->lab1);
+//         strcpy(rot2, rotulo->lab2);
+//         strcpy(ret_reg_usado, rotulo->reg_usado);
+//         origin_oc = rotulo->origin_ocup;
+//     }
+//     else if(modo == 3) {
+//         rotulo = while_if_nasm(quatro_str, tres, 0, "", cinco_str, modo, enquanto);
+//         strcpy(rot1, rotulo->lab1);
+//         strcpy(rot2, rotulo->lab2);
+//         strcpy(ret_reg_usado, rotulo->reg_usado);
+//         origin_oc = rotulo->origin_ocup;
+//     }
+//     else if(modo == 4) {
+//         rotulo = while_if_nasm(quatro_str, 0, 0, tres_str, cinco_str, modo, enquanto);
+//         strcpy(rot1, rotulo->lab1);
+//         strcpy(rot2, rotulo->lab2);
+//         strcpy(ret_reg_usado, rotulo->reg_usado);
+//         origin_oc = rotulo->origin_ocup;
+//     }
 
-}
+// }
 
-void if_part2(int enquanto) {
-    if (enquanto == 0) {
+void while_if_nasm_2(char *cond) {
+    if (igual(cond, "if")) {
         strcat(rot2, ":");
         fprintf(temp, "%s\n", rot2);
         
@@ -1128,7 +1414,7 @@ void if_part2(int enquanto) {
         fprintf(temp, "%s", "pop ");
         fprintf(temp, "%s\n\t\t", reg_ret->reg);
     }
-    else if (enquanto == 1) {
+    else if (igual(cond, "while")) {
         printf("l1r %s l2r %s\n", rot1, rot2);
         fprintf(temp, "%s", "jmp ");
         rot1[strlen(rot1)-1] = '\0';
@@ -1146,3 +1432,17 @@ void if_part2(int enquanto) {
 
     }
 }
+
+void libera_regs(struct registrador *lista, char *var) {
+    while(lista) {
+        //printf("lista->reg(%s) lista->var(%s) var(%s)\n", lista->reg, lista->var, var);
+        if(igual(lista->var, var)) {
+            lista->ocup = 0;
+            strcpy(lista->var, "");
+        }
+        lista = lista->prox;
+    }
+}
+
+
+

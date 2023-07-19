@@ -56,27 +56,28 @@ extern int yydebug;
     WHILE = 262,
     PRINT = 263,
     RETURN = 264,
-    MAIS = 265,
-    MENOS = 266,
-    MULT = 267,
-    DIV = 268,
-    MENOR = 269,
-    MAIOR = 270,
-    MENOR_IGUAL = 271,
-    MAIOR_IGUAL = 272,
-    IGUAL = 273,
-    DIF = 274,
-    ATRIB = 275,
-    PTV = 276,
-    P1 = 277,
-    P2 = 278,
-    CHV1 = 279,
-    CHV2 = 280,
-    PAR1 = 281,
-    PAR2 = 282,
-    VG = 283,
-    NUMERO = 284,
-    ID = 285
+    SCAN = 265,
+    MAIS = 266,
+    MENOS = 267,
+    MULT = 268,
+    DIV = 269,
+    MENOR = 270,
+    MAIOR = 271,
+    MENOR_IGUAL = 272,
+    MAIOR_IGUAL = 273,
+    IGUAL = 274,
+    DIF = 275,
+    ATRIB = 276,
+    PTV = 277,
+    P1 = 278,
+    P2 = 279,
+    CHV1 = 280,
+    CHV2 = 281,
+    PAR1 = 282,
+    PAR2 = 283,
+    VG = 284,
+    NUMERO = 285,
+    ID = 286
   };
 #endif
 
@@ -84,14 +85,15 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "parser.y"
+#line 15 "parser.y"
 
     int inteiro;
     char *string;
     char caracter;
     void *gene;
+    struct expressao *expr_;
 
-#line 95 "parser.tab.h"
+#line 97 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

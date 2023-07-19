@@ -22,7 +22,7 @@ COMENTARIO "/*"([^*\n]|((\*)+[^*/\n]))*(\*+)(\/)" "*
 
 %%
 
-int     {   printf("Int: %s\n\n", yytext);
+int     {   // printf("Int: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return INT;
         }
@@ -32,7 +32,7 @@ void    {   //printf("Void: %s\n\n", yytext);
             return VOID;
         }
 
-if      {   printf("If: %s\n\n", yytext);
+if      {   // printf("If: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IF;
         }
@@ -50,6 +50,11 @@ while   {   //printf("While: %s\n\n", yytext);
 print   {   //printf("Print: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return PRINT;
+        }
+
+scan   {   //printf("Scan: %s\n\n", yytext);
+            yylval.string = strdup(yytext);
+            return SCAN;
         }
 
 return  {   //printf("Return: %s\n\n", yytext);
@@ -158,14 +163,16 @@ return  {   //printf("Return: %s\n\n", yytext);
             return VG;
         }
 
-{NUMERO} {  //printf("\nNumero: %s %d %d\n\n", yytext, cap_menos, cap_parentese);
+{NUMERO} {  printf("\nNumero: %s %d %d\n\n", yytext, cap_menos, cap_parentese);
             num_count++;
             if(cap_menos == 2 && cap_parentese == 1) {
                 yylval.inteiro = atoi(yytext) * (-1);
                 cap_menos = 0;
                 cap_parentese = 0;
+                
                 return NUMERO;
             } else if ( (cap_menos == 2 && cap_parentese == 0) || cap_menos > 2) {
+                printf(" ----->> yyval: %d\n", yylval.inteiro);
                 yylval.caracter = '-';
                 cap_menos = 0;
                 cap_parentese = 0;
@@ -182,6 +189,8 @@ return  {   //printf("Return: %s\n\n", yytext);
 }
 
 {ID}    {   //printf("\nIdentificador (Variavel): %s\n\n", yytext);
+            cap_menos = 0;
+            cap_parentese = 0;
             yylval.string = strdup(yytext);
             return ID;
         }
