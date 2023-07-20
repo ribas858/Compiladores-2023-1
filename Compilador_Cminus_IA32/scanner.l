@@ -171,6 +171,6 @@ return  {   yylval.string = strdup(yytext);
             
         }
 
-.       {   printf("\nErro Lexico: Nao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng); }
+.       {  }
 
 %%

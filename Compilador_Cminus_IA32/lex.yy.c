@@ -1020,7 +1020,7 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 174 "scanner.l"
-{   printf("\nErro Lexico: Nao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng); }
+{  }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
