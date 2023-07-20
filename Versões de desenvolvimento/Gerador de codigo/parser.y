@@ -79,15 +79,59 @@ programa:
 
 
 instr:  var PTV
-    //|   print PTV
+    |   print PTV
     |   if
     |   while
     //|   func
     //|   RETURN valores PTV
-    //|   scan
+    |   scan PTV
     ;
 
-/* scan:   SCAN P1  */
+scan:   SCAN P1 ID P2   {                                       if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                }
+                                                                
+else if(passagem == 2) {
+    fprintf(temp, "\n\t%s\n", "pusha\n\
+    mov eax, 3\n\
+    mov ebx, 0\n\
+    mov ecx, scan\n\
+    mov edx, 255\n\
+    int 80h\n\
+    mov byte [scan+eax-1], 0\n\
+    push eax\n\
+    push scan\n\
+    call str_to_int");
+    fprintf(temp, "\t%s", "mov ");
+    fprintf(temp, "[%s], ", $3);
+    fprintf(temp, "%s", "eax\n\t");
+    fprintf(temp, "%s", "popa\n\n");
+    } 
+
+    }
+    ;
+
+
+print:  PRINT P1 ID P2 {                                       if (passagem == 1) {
+                                                                    printf("Ocorrencia\n");
+                                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
+                                                                    insere_simbolo(&tabela_simbolos, $3, &expr, -1);
+                                                                }
+                                                                
+else if(passagem == 2) {
+        fprintf(temp, "\n%s\n", "pusha");
+        fprintf(temp, "%s", "push dword");
+        fprintf(temp, "[%s]\n", $3);
+        fprintf(temp, "%s\n", "push numero_buffer");
+        fprintf(temp, "%s\n", "call meu_print_int");
+        fprintf(temp, "%s\n", "call barra_n");
+        fprintf(temp, "%s\n", "popa");
+    }
+    
+    }
+    ;
 
 
 if:     IF P1 expr operadores expr P2 {                         printf("CASO IF expr expr..%d\n", num_count);
@@ -130,35 +174,6 @@ while:
 
                                     }
     ;
-
-/*
-func:   VOID ID P1 parametros P2 CHV1 programa CHV2
-    |   INT ID P1 parametros P2 CHV1 programa CHV2
-    ;
-
-
-parametros:
-        valores VG parametros
-    |   valores
-    ;
-
-
-valores:
-        expr {                                  if (passagem == 2) {
-                                                    // printf("numeros contador.... %d\n", num_count);
-                                                    
-                                                    num_count = 0;
-                                                }
-        }
-
-    |   ID  {                                   if (passagem == 1) {
-                                                    printf("Ocorrencia\n");
-                                                    generico expr; expr.dado = NULL; expr.dado_tipo = ""; expr.tipo_regra = "";
-                                                    insere_simbolo(&tabela_simbolos, $1, &expr, -1);
-                                                }
-            }
-    ; 
-*/
 
 operadores:
         MAIOR
@@ -331,16 +346,12 @@ var:    INT ID      {                           if (passagem == 1) {
                                                 }
     ;
 
-/*
-print:  PRINT P1 valores P2
-    ; */
-
 %%
 
 
 int main(int argc, char *argv[]) {
     id_expr = "";
-    // rotulo = malloc(sizeof(struct labels));
+    rotulo = malloc(sizeof(struct labels));
     condicionais_count = 0;
     
     erro_count = 0;

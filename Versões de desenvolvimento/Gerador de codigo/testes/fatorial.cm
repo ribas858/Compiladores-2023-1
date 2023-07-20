@@ -1,8 +1,11 @@
 int fat = 1;
 int n = 8;
 
+scan(n);
+
 while( n > 0 ) {
 	fat = fat * n;
 	n = n - 1;
 }
-        
+
+print(fat); 

@@ -495,9 +495,11 @@ char *yytext;
     int cap_menos = 0;
     int cap_parentese = 0;
     int num_count = 0;
+    int scan_count = 0;
+    int print_count = 0;
 
-#line 500 "lex.yy.c"
-#line 501 "lex.yy.c"
+#line 502 "lex.yy.c"
+#line 503 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -714,10 +716,10 @@ YY_DECL
 		}
 
 	{
-#line 23 "scanner.l"
+#line 25 "scanner.l"
 
 
-#line 721 "lex.yy.c"
+#line 723 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -776,7 +778,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "scanner.l"
+#line 27 "scanner.l"
 {   // printf("Int: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return INT;
@@ -784,7 +786,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "scanner.l"
+#line 32 "scanner.l"
 {   //printf("Void: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return VOID;
@@ -792,7 +794,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 35 "scanner.l"
+#line 37 "scanner.l"
 {   // printf("If: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IF;
@@ -800,7 +802,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 40 "scanner.l"
+#line 42 "scanner.l"
 {   //printf("Else: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return ELSE;
@@ -808,7 +810,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 45 "scanner.l"
+#line 47 "scanner.l"
 {   //printf("While: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return WHILE;
@@ -816,23 +818,25 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 50 "scanner.l"
+#line 52 "scanner.l"
 {   //printf("Print: %s\n\n", yytext);
+            print_count++;
             yylval.string = strdup(yytext);
             return PRINT;
         }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 55 "scanner.l"
+#line 58 "scanner.l"
 {   //printf("Scan: %s\n\n", yytext);
+            scan_count++;
             yylval.string = strdup(yytext);
             return SCAN;
         }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 60 "scanner.l"
+#line 64 "scanner.l"
 {   //printf("Return: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return RETURN;
@@ -840,7 +844,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "scanner.l"
+#line 69 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return MAIS;
@@ -848,7 +852,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 70 "scanner.l"
+#line 74 "scanner.l"
 {   cap_menos++;
             if (cap_menos == 1) {
                 //printf("\nOperador Matematico: %s\n\n", yytext);
@@ -859,7 +863,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 78 "scanner.l"
+#line 82 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return MULT;
@@ -867,7 +871,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 83 "scanner.l"
+#line 87 "scanner.l"
 {   //printf("\nOperador Matematico: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return DIV;
@@ -875,7 +879,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 88 "scanner.l"
+#line 92 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             //yylval.caracter = yytext[0]; 
             yylval.string = strdup(yytext);
@@ -884,7 +888,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 94 "scanner.l"
+#line 98 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             //yylval.caracter = yytext[0];
             yylval.string = strdup(yytext);
@@ -893,7 +897,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 100 "scanner.l"
+#line 104 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return MENOR_IGUAL;
@@ -901,7 +905,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 105 "scanner.l"
+#line 109 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return MAIOR_IGUAL;
@@ -909,7 +913,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 110 "scanner.l"
+#line 114 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return IGUAL;
@@ -917,7 +921,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 115 "scanner.l"
+#line 119 "scanner.l"
 {   //printf("\nOperador de Comparacao: %s\n\n", yytext);
             yylval.string = strdup(yytext);
             return DIF;
@@ -925,7 +929,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 120 "scanner.l"
+#line 124 "scanner.l"
 {   //printf("\nOperador de Atribuicao: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             return ATRIB;
@@ -933,7 +937,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 125 "scanner.l"
+#line 129 "scanner.l"
 {   //printf("Ponto e virgula: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             return PTV;
@@ -941,7 +945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 130 "scanner.l"
+#line 134 "scanner.l"
 {   //printf("Abre Parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0];
             cap_parentese = 1;
@@ -950,7 +954,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 136 "scanner.l"
+#line 140 "scanner.l"
 {   //printf("Fecha Parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return P2;
@@ -958,7 +962,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 141 "scanner.l"
+#line 145 "scanner.l"
 {   //printf("\nAbre Chaves: %s\n\n", yytext); 
             yylval.caracter = yytext[0]; 
             return CHV1;
@@ -966,7 +970,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 146 "scanner.l"
+#line 150 "scanner.l"
 {   //printf("\nFecha Chaves: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return CHV2;
@@ -974,7 +978,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 151 "scanner.l"
+#line 155 "scanner.l"
 {   //printf("\nAbre parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return PAR1;
@@ -982,7 +986,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 156 "scanner.l"
+#line 160 "scanner.l"
 {   //printf("\nFecha parenteses: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return PAR2;
@@ -990,7 +994,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 161 "scanner.l"
+#line 165 "scanner.l"
 {   //printf("\nVirgula: %s\n\n", yytext);
             yylval.caracter = yytext[0]; 
             return VG;
@@ -998,7 +1002,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 166 "scanner.l"
+#line 170 "scanner.l"
 {  printf("\nNumero: %s %d %d\n\n", yytext, cap_menos, cap_parentese);
             num_count++;
             if(cap_menos == 2 && cap_parentese == 1) {
@@ -1023,13 +1027,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 188 "scanner.l"
+#line 192 "scanner.l"
 {  //printf("\nComentario: %s\n\n", yytext);
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 191 "scanner.l"
+#line 195 "scanner.l"
 {   //printf("\nIdentificador (Variavel): %s\n\n", yytext);
             cap_menos = 0;
             cap_parentese = 0;
@@ -1040,7 +1044,7 @@ YY_RULE_SETUP
 case 31:
 /* rule 31 can match eol */
 YY_RULE_SETUP
-#line 198 "scanner.l"
+#line 202 "scanner.l"
 {   if (yytext[0] == '\n') {
                 linha_count++;
             }
@@ -1049,16 +1053,16 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 204 "scanner.l"
+#line 208 "scanner.l"
 {   //printf("\nErro Lexico: Nao corresponde a gramatica do C-Minus: %s %d\n\n", yytext, yyleng);
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 207 "scanner.l"
+#line 211 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 1062 "lex.yy.c"
+#line 1066 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2063,5 +2067,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 207 "scanner.l"
+#line 211 "scanner.l"
 

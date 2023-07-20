@@ -10,6 +10,9 @@ extern int linha_count;
 extern int num_count;
 int erro_count;
 
+extern int scan_count;
+extern int print_count;
+
 FILE* temp;
 
 char *id_expr;

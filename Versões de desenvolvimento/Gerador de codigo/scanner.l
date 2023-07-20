@@ -6,6 +6,8 @@
     int cap_menos = 0;
     int cap_parentese = 0;
     int num_count = 0;
+    int scan_count = 0;
+    int print_count = 0;
 
 %}
 
@@ -48,11 +50,13 @@ while   {   //printf("While: %s\n\n", yytext);
         }
 
 print   {   //printf("Print: %s\n\n", yytext);
+            print_count++;
             yylval.string = strdup(yytext);
             return PRINT;
         }
 
 scan   {   //printf("Scan: %s\n\n", yytext);
+            scan_count++;
             yylval.string = strdup(yytext);
             return SCAN;
         }

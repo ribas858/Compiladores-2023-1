@@ -1058,10 +1058,20 @@ char* expr_nasm(char op, struct expressao *a, struct expressao *b) {
 }
 
 void vars_nasm(struct tbs *lista) {
+    
+    // char scan[5] = { "scan" };
+    // char buff[10];
+    // sprintf(buff, "%d", scan_count);
+    // strcat(scan, buff);
+
+    printf(">>>>> scan count:%d print c:%d\n", scan_count, print_count);
+
     int bss = 0;
     struct tbs *aux = lista;
-    fprintf(temp, "%s\n\n", "%include \"io.mac\"");
     fprintf(temp, "%s\n\n\t", "section .data");
+    if (print_count > 0) {
+        fprintf(temp, "%s\n", "myNwln db 0dH, 0ah, 0\n\tsize_ln EQU $-myNwln\n");
+    }
     while(lista) {
         if(lista->opr_expr == 1) {
             fprintf(temp, "%s ", lista->simbolo);
@@ -1075,9 +1085,15 @@ void vars_nasm(struct tbs *lista) {
         lista = lista->prox;
     }
 
-    if(bss > 0) {
+    if(bss > 0 || scan_count > 0 || print_count > 0) {
         fprintf(temp, "%s", "\n");
         fprintf(temp, "%s\n\n\t", "section .bss");
+        if (scan_count > 0) {
+            fprintf(temp, "%s\n\n\t", "scan resb 255");
+        }
+        if (print_count > 0) {
+            fprintf(temp, "%s\n\n\t", "numero_buffer resb 10");
+        }
         while(aux) {
             if(aux->opr_expr != 1) {
                 fprintf(temp, "%s ", aux->simbolo);
@@ -1091,7 +1107,118 @@ void vars_nasm(struct tbs *lista) {
     }
     fprintf(temp, "%s", "\n");
 
-    fprintf(temp, "%s\n\n", "section .text\n\tglobal _start");
+    if (scan_count > 0) {
+        fprintf(temp, "%s\n\n", "section .text");
+
+        fprintf(temp, "%s\n", "str_to_int:\n\
+                enter 8,0\n\
+                mov dword [ebp-4], 10\n\
+                mov dword [ebp-8], -1\n\
+                mov esi, [ebp+8]\n\
+                mov ecx, [ebp+12]\n\
+                sub ecx, 1\n\
+                mov ebx, 0\n\
+                mov edi, 0\n\
+                mov byte bl, [esi]\n\
+                cmp byte bl, 0x2d\n\
+                jne go\n\
+                        sub ebx, ebx\n\
+                        inc ebx\n\
+                        push 1\n\
+                        jmp fim_go\n\
+                go:\n\
+                        push 0\n\
+                        sub ebx, ebx\n\
+        fim_go:\n\
+                cvsi:\n\
+                        mov al, [esi+ebx]\n\
+                        sub al, 0x30\n\
+                        cbw\n\
+                        cwde\n\
+                        inc ebx\n\
+                        add eax, edi\n\
+                        mov edi, eax\n\
+                        cmp ebx, ecx\n\
+                        je fim_si\n\
+                        mul dword [ebp-4]\n\
+                        mov edi, eax\n\
+                        jmp cvsi\n\
+        fim_si:\n\
+                pop eax\n\
+                cmp eax, 0\n\
+                je n_mul\n\
+                        mov eax, edi\n\
+                        imul dword [ebp-8]\n\
+                        jmp fim_mul\n\
+        n_mul:\n\
+                mov eax, edi\n\
+        fim_mul:\n\
+                leave\n\
+                ret 8\n\n");
+        if(print_count > 0) {
+            fprintf(temp, "%s\n", "int_to_str:\n\
+                    enter 4,0\n\
+                    sub ecx, ecx\n\
+                    sub ebx, ebx\n\
+                    mov dword [ebp-4], 10\n\
+                    mov eax, [ebp+8]\n\
+                    mov edi, [ebp+12]\n\
+                    cmp eax, 0\n\
+                    jg continue\n\
+                            mov eax, -1\n\
+                            imul dword [ebp+8]\n\
+                            mov byte [edi], 0x2d\n\
+                            inc ebx\n\
+            continue:\n\
+                    cvic:\n\
+                            sub edx, edx\n\
+                            div dword [ebp-4]\n\
+                            cmp eax, 0\n\
+                            je fim\n\
+                            add edx, 0x30\n\
+                            push edx\n\
+                            inc ecx\n\
+                            jmp cvic\n\
+            fim:\n\
+                    add edx, 0x30\n\
+                    push edx\n\
+                    inc ecx\n\
+                    invert:\n\
+                            pop edx\n\
+                            mov [edi+ebx], edx\n\
+                            inc ebx\n\
+                    loop invert\n\
+                    mov byte [edi+ebx], 0\n\
+                    mov eax, ebx\n\
+                    leave\n\
+                    ret 8\n\n");
+            fprintf(temp, "%s\n", "meu_print_int:\n\
+                    enter 4, 0\n\
+                    push dword [ebp+8]\n\
+                    push dword [ebp+12]\n\
+                    call int_to_str\n\
+                    mov dword [ebp-4], eax\n\
+                    mov eax, 4\n\
+                    mov ebx, 1\n\
+                    mov ecx, [ebp+8]\n\
+                    mov edx, [ebp-4]\n\
+                    int 80h\n\
+                    leave\n\
+                    ret 8\n\n");
+            fprintf(temp, "%s\n", "barra_n:\n\
+                    enter 0, 0\n\
+                    mov eax, 4\n\
+                    mov ebx, 1\n\
+                    mov ecx, myNwln\n\
+                    mov edx, size_ln\n\
+                    int 80h\n\
+                    leave\n\
+                    ret\n");
+        }
+        fprintf(temp, "%s\n\n", "global _start");
+    } else {
+        fprintf(temp, "%s\n\n", "section .text\n\tglobal _start");
+    }
 
     fprintf(temp, "%s\n\t", "_start:");
 }
