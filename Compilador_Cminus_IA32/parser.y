@@ -1,6 +1,16 @@
 %{
     #include "funcs.h"
-    FILE* yyin;
+    extern FILE* yyin;
+    FILE* temp;
+    char *id_expr;
+    int erro_count;
+    int condicionais_count;
+    char rot1[30];
+    char rot2[30];
+    char ret_reg_usado[4];
+    int origin_oc;
+    struct labels *rotulo;
+    registrador *lista_regs;
 
     struct tbs *tabela_simbolos = NULL;
     int passagem = 1;

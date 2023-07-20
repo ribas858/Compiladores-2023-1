@@ -8,21 +8,21 @@
 
 extern int linha_count;
 extern int num_count;
-int erro_count;
+extern int erro_count;
 
 extern int scan_count;
 extern int print_count;
 
-FILE* temp;
+extern FILE* temp;
 
-char *id_expr;
+extern char *id_expr;
 
-int condicionais_count;
+extern int condicionais_count;
 
-char rot1[30];
-char rot2[30];
-char ret_reg_usado[4];
-int origin_oc;
+extern char rot1[30];
+extern char rot2[30];
+extern char ret_reg_usado[4];
+extern int origin_oc;
 
 typedef struct tbs {
     char *simbolo;
@@ -53,15 +53,14 @@ typedef struct labels {
     char reg_usado[4];
     int origin_ocup;
 }labels;
-struct labels *rotulo;
 
 typedef struct expressao {
     char *id;
     int numero;
 } expressao;
 
-
-registrador *lista_regs;
+extern struct labels *rotulo;
+extern registrador *lista_regs;
 
 int yylex(void);
 void yyerror(char const* s);
